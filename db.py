@@ -40,6 +40,15 @@ class Mysql(object):
 	def query(self,sql):
 		
 		try:
+			self.conn = MySQLdb.connect(
+					host = '172.18.4.181',
+					port = 3306,
+					user = 'admintest',
+					passwd = 'dsjw2015',
+					db = 'neworiental_v2',
+					charset = 'utf8')
+			
+
 			self.cur.execute(sql)	
 		
 		except MySQLdb.Warning,w:

@@ -19,8 +19,9 @@ if __name__ == "__main__":
 
 	application = tornado.web.Application([
 		(r"/test", TestHandler),
-		(r'/uploadfile',UploadFile),
+		(r'/transcode',Transcode),
 		(r'/transcode_res',TranscodeRes),
+		(r'/uploadfile',UploadFile),
 	])
 
 	http_server = tornado.httpserver.HTTPServer(application)
