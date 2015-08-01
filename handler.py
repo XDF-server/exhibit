@@ -10,11 +10,12 @@ from db import Mysql
 from http import Http
 from gl import LOG
 from base import Base
+from qiniu_wrap import QiniuWrap
 
 class TestHandler(web.RequestHandler):
         def get(self): self.write("Hello, world")
 
-class UploadFile(web.RequestHandler):
+class Transcode(web.RequestHandler):
 
 	@web.asynchronous
 	@gen.engine
@@ -23,6 +24,8 @@ class UploadFile(web.RequestHandler):
 		for i in range(1):
 		
 			LOG.info('- %s - API IN' % (self.__class__.__name__))
+			LOG.info('- %s - PARA IN' % self.request.arguments)
+			
 			ret = {'code':'','message':''}
 
 			schoolid = ''.join(self.request.arguments['schoolid'])
@@ -89,7 +92,7 @@ class UploadFile(web.RequestHandler):
 		self.write(json.dumps(ret))
 		self.finish()
 
-		LOG.info(ret)
+		LOG.info('- %s - PARA OUT' % ret)
 		LOG.info('- %s - API OUT' % (self.__class__.__name__))
 
 
@@ -102,4 +105,86 @@ class TranscodeRes(web.RequestHandler):
 			LOG.info('- %s - API IN' % (self.__class__.__name__))
 			ret = {'code':'','message':''}
 
+class UploadFile(web.RequestHandler):
+	
+	def get(self):
+		
+		self.write('''
+        		<html>
+            			<head><title>Upload File</title></head>
+            			<body>
+                			<form action='uploadfile' enctype="multipart/form-data" method='post'>
+                    			<input type='file' name='audio'/><br/>
+                    			<input type='submit' value='submit'/>
+                			</form>
+            			</body>
+        		</html>
+        	''')
+
+	def post(self):
+
+		LOG.info('- %s - API IN' % (self.__class__.__name__))
+		ret = {'code':'','message':''}
+
+		file_metas = self.request.files['audio']
+
+		for meta in file_metas:
+		
+			filename = meta['filename']
+
+			with open(filename, 'wb') as up:
+				up.write(meta['body'])
+
+		#upload_qiniu('fs-hd', filename)
+		#self.write(upload_qiniu('fs-hd', filename))
+		self.write(json.dumps(ret))
+
+		LOG.info(ret)
+		LOG.info('- %s - API OUT' % (self.__class__.__name__))
+
+
+class UploadSubject(web.ResquestHandler):
+
+	def post(self):
+		
+		for i in range(1):
+
+			LOG.info('- %s - API IN' % (self.__class__.__name__))
+			LOG.info('- %s - PARA OUT' % ret)
 			
+			ret = {'code':'','message':'','id':''}
+
+			subject_json = ''.join(self.request.arguments['json'])
+			subject_html = ''.join(self.request.arguments['html'])
+			subject_theme = ''.join(self.request.arguments['theme'])
+			subject_special = ''.join(self.request.arguments['special'])
+			subject_level = ''.join(self.request.arguments['level'])
+			timestamp = ''.join(self.request.arguments['timestamp'])
+			secret = ''.join(self.request.arguments['secret'])
+
+			key = subject_json + subject_html + subject_theme + subject_special + subject_level + timestamp
+			secret_key = sha1(key).hexdigest()
+
+			if secret == secret_key:
+
+				qiniu = QiniuWrap()
+				file_key = 'tmp' + secret_key + '.json'
+				qiniu.upload_data("temp",file_key,subject_json)
+
+				db = Mysql()
+				db.connect_master()
+
+				#更新主题link表
+				#更新专题link表
+				#更新题表
+				upload_sql = "insert into neworiental_v2.entity_question (question_docx,question_body,question_answer,question_analysis,question_options,question_type,difficulty,
+			
+				
+			
+					
+
+		
+
+		LOG.info('- %s - PARA OUT' % ret)
+		LOG.info('- %s - API OUT' % (self.__class__.__name__))
+
