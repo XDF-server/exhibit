@@ -36,6 +36,25 @@ class Mysql(object):
 
 		except MySQLdb.Error,e:
 			print "Error:%s" % str(e) 
+	
+	def connect_test(self):
+
+		try:
+			self.conn = MySQLdb.connect(
+					host = '127.0.0.1',
+					port = 3306,
+					user = root,
+					passwd = '1a2s3dqwe', 
+					db = 'test',
+					charset = 'utf-8')
+			
+			self.cur = self.conn.cursor()
+
+		except MySQLdb.Warning,w:
+			print "Warning:%s" % str(w)
+
+		except MySQLdb.Error,e:
+			print "Error:%s" % str(e) 
 
 	def query(self,sql):
 		
