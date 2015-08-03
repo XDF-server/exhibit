@@ -151,9 +151,17 @@ class UploadSubject(web.RequestHandler):
 		for i in range(1):
 
 			LOG.info('API IN[%s]' % (self.__class__.__name__))
-			LOG.info('PARAMETER OUT[%s]' % self.request.arguments)
+			LOG.info('PARAMETER IN[%s]' % self.request.arguments)
 			
 			ret = {'code':'','message':'','id':-9999}
+
+			essential_keys = set(['json','html','theme','special','level','type','timestamp','secret'])
+
+			if essential_keys > set(self.request.arguments.keys()):
+				
+				ret['code'] = -5
+				ret['message'] = 'parameter is wrong'
+				break
 
 			subject_json = ''.join(self.request.arguments['json'])
 			subject_html = ''.join(self.request.arguments['html'])
@@ -215,7 +223,6 @@ class UploadSubject(web.RequestHandler):
 				except DBException as e:
 					ret['code'] = -4
 					ret['message'] = 'db event failed'
-					print e.get_msg()
 					break
 
 				ret['code'] = 0
