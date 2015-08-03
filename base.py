@@ -47,4 +47,9 @@ class Base(object):
 
 		return logger
 
+	@staticmethod
+	def enum(**enums):
+		
+		return type('Enum',(),enums)
+
 

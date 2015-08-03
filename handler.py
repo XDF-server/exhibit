@@ -1,4 +1,4 @@
-# *-* coding:utf-8 *-*
+#e*-* coding:utf-8 *-*
 
 import time
 import json
@@ -11,6 +11,7 @@ from http import Http
 from gl import LOG
 from base import Base
 from qiniu_wrap import QiniuWrap
+from exception import DBException
 
 class TestHandler(web.RequestHandler):
         def get(self): self.write("Hello, world")
@@ -23,8 +24,8 @@ class Transcode(web.RequestHandler):
 
 		for i in range(1):
 		
-			LOG.info('- %s - API IN' % (self.__class__.__name__))
-			LOG.info('- %s - PARA IN' % self.request.arguments)
+			LOG.info('API IN[%s]' % (self.__class__.__name__))
+			LOG.info('PARA IN[%s]' % self.request.arguments)
 			
 			ret = {'code':'','message':''}
 
@@ -92,8 +93,8 @@ class Transcode(web.RequestHandler):
 		self.write(json.dumps(ret))
 		self.finish()
 
-		LOG.info('- %s - PARA OUT' % ret)
-		LOG.info('- %s - API OUT' % (self.__class__.__name__))
+		LOG.info('PARA OUT[%s]' % ret)
+		LOG.info('API OUT[%s]' % (self.__class__.__name__))
 
 
 class TranscodeRes(web.RequestHandler):
@@ -140,51 +141,93 @@ class UploadFile(web.RequestHandler):
 		self.write(json.dumps(ret))
 
 		LOG.info(ret)
-		LOG.info('- %s - API OUT' % (self.__class__.__name__))
+		LOG.info('API OUT[%s]' % (self.__class__.__name__))
 
 
-class UploadSubject(web.ResquestHandler):
+class UploadSubject(web.RequestHandler):
 
 	def post(self):
 		
 		for i in range(1):
 
-			LOG.info('- %s - API IN' % (self.__class__.__name__))
-			LOG.info('- %s - PARA OUT' % ret)
+			LOG.info('API IN[%s]' % (self.__class__.__name__))
+			LOG.info('PARAMETER OUT[%s]' % self.request.arguments)
 			
-			ret = {'code':'','message':'','id':''}
+			ret = {'code':'','message':'','id':-9999}
 
 			subject_json = ''.join(self.request.arguments['json'])
 			subject_html = ''.join(self.request.arguments['html'])
 			subject_theme = ''.join(self.request.arguments['theme'])
 			subject_special = ''.join(self.request.arguments['special'])
 			subject_level = ''.join(self.request.arguments['level'])
+			subject_type = ''.join(self.request.arguments['type'])
 			timestamp = ''.join(self.request.arguments['timestamp'])
 			secret = ''.join(self.request.arguments['secret'])
 
-			key = subject_json + subject_html + subject_theme + subject_special + subject_level + timestamp
+			key = subject_theme + subject_special + subject_level + timestamp
 			secret_key = sha1(key).hexdigest()
 
 			if secret == secret_key:
 
 				qiniu = QiniuWrap()
-				file_key = 'tmp' + secret_key + '.json'
-				qiniu.upload_data("temp",file_key,subject_json)
+
+				json_key = 'tmp_' + secret_key + '.json'
+				if qiniu.upload_data("temp",json_key,subject_json) is not None:
+					
+					ret['code'] = -2
+					ret['message'] = 'upload json failed'
+					break
+				
+				html_key = 'tmp_' + secret_key + '.html'
+				if qiniu.upload_data("temp",html_key,subject_json) is not None:
+					
+					ret['code'] = -3
+					ret['message'] = 'upload html failed'
+					break
 
 				db = Mysql()
-				db.connect_master()
-
-				#更新主题link表
-				#更新专题link表
-				#更新题表
-				upload_sql = "insert into neworiental_v2.entity_question (question_docx,question_body,question_answer,question_analysis,question_options,question_type,difficulty,
-			
+				db.connect_test()
 				
-			
-					
+				db.start_event()
 
-		
+				question_sql = "insert into entity_question (difficulty,question_docx,html,upload_time,question_type) values (%(level)d,'%(json)s','%(html)s',now(),%(type)d);"
+				
+				link_topic_sql = "insert into link_question_topic (question_id,topic_id) values (%(q_id)d,%(t_id)d);"
+				link_series_sql = "insert into link_question_series (question_id,series_id) values (%(q_id)d,%(s_id)d);"
 
-		LOG.info('- %s - PARA OUT' % ret)
-		LOG.info('- %s - API OUT' % (self.__class__.__name__))
+				try:
+					question_res = db.exec_event(question_sql,level = int(subject_level),json = json_key,html = html_key,type = int(subject_type))
+					question_sql = db.get_last_sql()
+					question_id = db.get_last_id()
+					LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (question_sql,question_res,question_id))
+				
+					topic_res = db.exec_event(link_topic_sql,q_id = int(question_id),t_id = int(subject_theme))
+					topic_sql = db.get_last_sql()
+					topic_id = db.get_last_id()
+					LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (link_topic_sql,topic_res,topic_id))
+
+					series_res = db.exec_event(link_series_sql,q_id = int(question_id),s_id = int(subject_special))
+					series_sql = db.get_last_sql()
+					series_id = db.get_last_id()
+					LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (link_series_sql,series_res,series_id))
+
+					db.end_event()
+				except DBException as e:
+					ret['code'] = -4
+					ret['message'] = 'db event failed'
+					print e.get_msg()
+					break
+
+				ret['code'] = 0
+				ret['message'] = 'success'
+				ret['id'] = question_id
+
+			else:
+				ret['code'] = -1
+				ret['message'] = 'secure key error'
+
+
+		LOG.info('PARAMETER OUT[%s]' % ret)
+		LOG.info('API OUT[%s]' % (self.__class__.__name__))
+		self.write(json.dumps(ret))
 

@@ -76,12 +76,12 @@ class QiniuWrap(object):
 		ret,info = put_file(token,key,localfile)
 
 		if 200 == info.status_code:
-			return 0
+			return None
 		else:
 			return info.text_body[10:-2]
 	def upload_data(self,bucket_name,key,data):
 
-		if bucket_name is None or key is None or localfile is None:
+		if bucket_name is None or key is None or data is None:
 			return 'sys error'
 
 		token = self.q.upload_token(bucket_name,key)
@@ -89,7 +89,7 @@ class QiniuWrap(object):
 		ret,info = put_data(token,key,data)
 
 		if 200 == info.status_code:
-			return 0
+			return None
 		else:
 			return info.text_body[10:-2]
 
