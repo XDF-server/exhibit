@@ -53,3 +53,11 @@ class Base(object):
 		return type('Enum',(),enums)
 
 
+	@staticmethod
+	def check_parameter(keys,essential_keys):
+
+		if keys == essential_keys:
+			return False
+		else:
+			return keys < essential_keys
+

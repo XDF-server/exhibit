@@ -157,7 +157,7 @@ class UploadSubject(web.RequestHandler):
 
 			essential_keys = set(['json','html','theme','special','level','type','timestamp','secret'])
 
-			if essential_keys > set(self.request.arguments.keys()):
+			if Base.check_parameter(set(self.request.arguments.keys()),essential_keys):
 				
 				ret['code'] = -5
 				ret['message'] = 'parameter is wrong'

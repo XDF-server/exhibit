@@ -40,6 +40,7 @@ class Mysql(object):
 		except MySQLdb.Error,e:
 			self.status = self.status_enum.CONN_ERR
 			msg = "Error:%s" % str(e) 
+			LOG.error('Error:%s' % str(e))
 			raise DBException(msg)
 	
 	def connect_test(self):
@@ -58,6 +59,7 @@ class Mysql(object):
 		except MySQLdb.Error,e:
 			self.status = self.status_enum.CONN_ERR
 			msg = "Error:%s" % str(e) 
+			LOG.error('Error:%s' % str(e))
 			raise DBException(msg)
 
 	def start_event(self):
@@ -112,6 +114,7 @@ class Mysql(object):
 			raise DBException('query failed')
 		except:
 			self.status = self.status_enum.OTHER_ERR
+			LOG.error('format jfailed')
 			raise DBException('format failed')
 
 		return self.cur.fetchone() if self.cur.fetchone() else 'sucess'
