@@ -8,8 +8,9 @@ import tornado.options
 import tornado.web
 from tornado.options import define,options
 
-from handler import *
+import loader
 from gl import LOG
+from handler import *
 
 define('port',default = 9000,help='this is default port',type = int)
 
@@ -21,7 +22,7 @@ if __name__ == "__main__":
 		(r"/test", TestHandler),
 		(r'/transcode',Transcode),
 		(r'/transcode_res',TranscodeRes),
-		(r'/upload_subject',UploadSubject),
+		(r'/upload_question',UploadQuestion),
 	])
 
 	http_server = tornado.httpserver.HTTPServer(application)

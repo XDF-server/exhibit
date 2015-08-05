@@ -4,15 +4,17 @@ import qiniu
 from qiniu import Auth,BucketManager
 from qiniu import PersistentFop,op_save,put_file,put_data
 import urllib2
-from base import Base
+from base import Configer
 import os
 
 class QiniuWrap(object):
 
 	def __init__(self):
+		
+		configer = Configer('')
 
-		access_key = Base.get_config('QINIU','access_key')
-		secret_key = Base.get_config('QINIU','secret_key')
+		access_key = configer.get_configer('QINIU','access_key')
+		secret_key = configer.get_configer('QINIU','secret_key')
 
 		self.q=Auth(access_key,secret_key)
 		self.bucket = BucketManager(self.q)

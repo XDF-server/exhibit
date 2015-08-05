@@ -1,11 +1,13 @@
 # *-* coding:utf-8 *-*
 
 import MySQLdb 
-from gl import LOG
 from base import Base
 from exception import DBException
 from base import Base
+from gl import LOG
+from design_model import singleton
 
+@singleton
 class Mysql(object):
 
 	def __init__(self):
@@ -70,7 +72,7 @@ class Mysql(object):
 
 		if self.event_flag:
 
-			self.query(sql,kwds)
+			self.query(sql,**kwds)
 		else:
 			self.status = self.status_enum.EVENT_ERR
 			raise DBException('event failed')
@@ -96,10 +98,11 @@ class Mysql(object):
 
 		self.conn.rollback()
 
-	def query(self,sql,map = {},**kwds):
+	def query(self,sql,**kwds):
 		
 		try:
-			self.sql = sql % map
+			self.sql = sql % kwds
+			print self.sql
 			self.cur.execute(self.sql)	
 		
 		except MySQLdb.Warning,w:
@@ -112,11 +115,12 @@ class Mysql(object):
 			LOG.error('Error:%s' % str(e))
 			self.status = self.status_enum.QUERY_ERR
 			raise DBException('query failed')
+		
 		except:
 			self.status = self.status_enum.OTHER_ERR
-			LOG.error('format jfailed')
+			LOG.error('format failed')
 			raise DBException('format failed')
-
+		
 		return self.cur.fetchone() if self.cur.fetchone() else 'sucess'
 
 	def get_last_sql(self):

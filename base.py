@@ -2,50 +2,9 @@
 
 import logging
 import ConfigParser
-
-def isset(v):
-
-	try:
-		type(eval(v))
-
-	except:
-		print False
-		return False
-	else:
-		print True
-		return True	
+from design_model import singleton
 
 class Base(object):
-
-        @staticmethod
-        def get_config(section,option):
-
-                cf = ConfigParser.ConfigParser()
-                cf.read('config.ini')
-                return cf.get(section,option)	
-
-	@staticmethod
-	def init_log():
-
-		logger = logging.getLogger('IDC_API')
-		logger.setLevel(logging.DEBUG)
-		
-		log_path = Base.get_config('LOG','path')
-
-		fh = logging.FileHandler(log_path)
-		fh.setLevel(logging.DEBUG)
-
-		ch = logging.StreamHandler()
-		ch.setLevel(logging.DEBUG)
-
-		formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(filename)s - %(funcName)s - %(message)s')
-		fh.setFormatter(formatter)
-		ch.setFormatter(formatter)
-
-		logger.addHandler(fh)
-		logger.addHandler(ch)
-
-		return logger
 
 	@staticmethod
 	def enum(**enums):
@@ -60,4 +19,54 @@ class Base(object):
 			return False
 		else:
 			return keys < essential_keys
+	@staticmethod
+	def isset(v):
+
+		try:
+			type(eval(v))
+
+		except:
+			print False
+			return False
+		else:
+			print True
+			return True
+
+@singleton
+class Configer(object):
+
+	def __init__(self,ini_path):
+
+		self.cf = ConfigParser.ConfigParser()
+                self.cf.read(ini_path)
+
+	def get_configer(self,section,option):
+
+		return self.cf.get(section,option)	
+
+@singleton
+class Logger(object):
+
+	def __init__(self,path = '',info = '',format = ''):
+		
+		self.logger = logging.getLogger(info)
+		self.logger.setLevel(logging.DEBUG)
+		
+		fh = logging.FileHandler(path)
+		fh.setLevel(logging.DEBUG)
+
+		ch = logging.StreamHandler()
+		ch.setLevel(logging.DEBUG)
+
+		formatter = logging.Formatter(format)
+		fh.setFormatter(formatter)
+		ch.setFormatter(formatter)
+
+		self.logger.addHandler(fh)
+		self.logger.addHandler(ch)
+	
+	def get_logger(self):
+
+		return self.logger
+
 

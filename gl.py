@@ -1,5 +1,9 @@
 # *-* coding:utf-8 *-*
 
-from base import Base
+from base import Configer
+from base import Logger
 
-LOG = Base.init_log()
+logger = Logger()
+LOG = logger.get_logger()
+
+
