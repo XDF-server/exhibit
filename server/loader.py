@@ -4,7 +4,7 @@ from base import Base
 from base import Logger
 from base import Configer
 
-configer = Configer('config.ini')
+configer = Configer('../config.ini')
 
 log_info = configer.get_configer('LOG','info')
 log_path = configer.get_configer('LOG','path')
@@ -21,7 +21,11 @@ mongo.select_collection('mongo_question_json')
 from mysql import Mysql
 
 mysql = Mysql()
+
 mysql.connect_test()
 
+from qiniu_wrap import QiniuWrap
+
+qiniu = QiniuWrap
 
 

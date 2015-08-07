@@ -21,7 +21,7 @@ class Business(object):
 				return False
 
 		except DBException as e:
-			LOG.error('check topic error [%s]' % e.get_msg)
+			LOG.error('check topic error [%s]' % e)
 			raise CKException('check topic error')
 
 	@staticmethod
@@ -38,7 +38,7 @@ class Business(object):
 				return False
 
 		except DBException as e:
-			LOG.error('check seriess error [%s]' % e.get_msg)
+			LOG.error('check seriess error [%s]' % e)
 			raise CkException('check seriess error')
 
 

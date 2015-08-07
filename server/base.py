@@ -15,10 +15,13 @@ class Base(object):
 	@staticmethod
 	def check_parameter(keys,essential_keys):
 
+		#keys = set(keys)
+		#essential_keys = set(essential_keys)
+
 		if keys == essential_keys:
 			return False
 		else:
-			return keys < essential_keys
+			return True
 	@staticmethod
 	def isset(v):
 
@@ -35,7 +38,7 @@ class Base(object):
 @singleton
 class Configer(object):
 
-	def __init__(self,ini_path):
+	def __init__(self,ini_path = ''):
 
 		self.cf = ConfigParser.ConfigParser()
                 self.cf.read(ini_path)
@@ -70,3 +73,9 @@ class Logger(object):
 		return self.logger
 
 
+if __name__ == '__main__':
+
+	keys = set(['a','b'])
+	enssential = set(['c'])
+	print Base.check_parameter(keys,enssential)
+	print keys < enssential

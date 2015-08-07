@@ -1,12 +1,13 @@
-# *-* coidng:utf-8 *-*
-
+# *-* coidng:utf-8 *-* 
 import qiniu
 from qiniu import Auth,BucketManager
 from qiniu import PersistentFop,op_save,put_file,put_data
 import urllib2
 from base import Configer
 import os
+from design_model import singleton
 
+@singleton
 class QiniuWrap(object):
 
 	def __init__(self):
@@ -117,6 +118,10 @@ class QiniuWrap(object):
                 bucket_name = bucket_prex + bucket_name
                 ret, info = bucket.delete(bucket_name, key)
                 return ret
+
+	def get_uptoken(self,bucket_name,key):
+			
+		return self.q.upload_token(bucket_name,key)
                 
                         
 if __name__ == '__main__':

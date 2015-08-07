@@ -1,0 +1,50 @@
+{% include "header.html" %}
+
+<link rel="stylesheet" href="{{ static_url("css/index.css") }}" >
+
+</head>
+
+<body>
+
+<div id="background">  
+	<img src="{{ static_url("image/index1.jpg") }}" height="100%" width="100%"/>  
+</div>
+
+<!-- 导航栏 -->
+<div id="navbar" class="navbar-offset">
+	<a href="manage_auto_replenish_order.php" class="btn btn-link" target="_blank"></a>
+	<a href="data_export.php" target="_blank" class="btn btn-link"></a>
+	<a href="batch_replenish_order.php" target="_blank" class="btn btn-link"></a>
+	<a href="check_order.php" target="_blank" class="btn btn-link"></a>
+	<a href="R_manual_import.php" target="_blank" class="btn btn-link"></a>
+</div>
+
+<!-- 搜索-->
+<div id="search_bar" class="container-fluid">
+	<form id="search-form" method="get" action="search" target="_blank">
+		<div class="form-group form-inline">
+			<div class="input-search-offset">
+				<input id="search-data" name="data" type="text" class="form-control input-lg" style="width:850px" autofocus="autofocus" autocomplete="off" spellcheck="false"  placeholder="请输入题号">
+				<div class="btn-group">
+					<button id="search-btn" type="button" class="btn btn-success btn-lg">搜索一下</button>
+					<button id="search-item" type="button" class="btn btn-success btn-lg dropdown-toggle" data-toggle="dropdown">
+						<span class="caret"> </span>
+						<span class="sr-only"></span>
+					</button>
+					<ul class="dropdown-menu search-dropdown-menu">
+						<!--<li><a id="qid-search" href="#">搜题</a></li>-->
+					</ul>
+			    </div>
+			</div>
+		</div>	
+		<input id="search_type" type="hidden" name="type" value="">
+	</form>
+</div>
+
+</body>
+
+{% include "footer.html" %}
+
+<script src="{{ static_url("js/index.js") }}"></script>
+
+</html>

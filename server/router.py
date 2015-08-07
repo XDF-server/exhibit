@@ -1,6 +1,6 @@
 # *-* coding:utf-8 *-* 
 
-
+import os
 import sys
 import tornado.httpserver
 import tornado.ioloop
@@ -10,7 +10,8 @@ from tornado.options import define,options
 
 import loader
 from gl import LOG
-from handler import *
+from api_handler import *
+from exhibt_handler import *
 
 define('port',default = 9000,help='this is default port',type = int)
 
@@ -23,7 +24,13 @@ if __name__ == "__main__":
 		(r'/transcode',Transcode),
 		(r'/transcode_res',TranscodeRes),
 		(r'/upload_question',UploadQuestion),
-	])
+		(r'/uptoken',Uptoken),
+		(r'/index',Index),
+		(r'/search',Search),
+	],
+	template_path = os.path.join(os.path.dirname(__file__),os.pardir,'templates'),
+	static_path = os.path.join(os.path.dirname(__file__),os.pardir,'static'),
+	)
 
 	http_server = tornado.httpserver.HTTPServer(application)
 
