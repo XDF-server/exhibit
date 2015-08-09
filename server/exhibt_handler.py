@@ -25,11 +25,31 @@ class Search(web.RequestHandler):
 		type = ''.join(self.request.arguments['type'])
 		data = ''.join(self.request.arguments['data'])
 
-		access = { '1' : '_qid_search'}[type]
+		access = { '1' : '_qid_search',
+			   '2' : '_q_type_filter',
+			   '3' : '_q_subject_filter'}[type]
 
 		getattr(self,access)(data)
 
 	def _qid_search(self,data):
+
+		index_dict = {'title' : '新旧题对比展示'}
+
+		old_dict = self._old_question(data)
+
+		combine_dict = dict(index_dict,**old_dict)
+		print combine_dict
+		self.render("new_old_question_show.html",**combine_dict)
+
+	def _q_type_filter(self,data):
+
+		pass
+
+	def _q_subject_filter(self,data):
+	
+		pass
+
+	def _old_question(self,data):
 
 		for i in range(1):
 		
@@ -62,14 +82,18 @@ class Search(web.RequestHandler):
 		option_url = domain % (option_bucket,question_option)
 		answer_url = domain % (answer_bucket,question_answer)	
 		analysis_url = domain % (analysis_bucket,question_analysis)
+		
+		return {'body_img_url' : body_url,'option_img_url' : option_url,'answer_img_url' : answer_url,'analysis_img_url' : analysis_url}
 
-
-		self.render("new_old_question_show.html",title = "旧题展示", body_img_url = body_url, option_img_url = option_url,answer_img_url = answer_url,analysis_img_url = analysis_url)
-
-		#print body_url,option_url,answer_url,analysis_url
-		#print analysis_url
+	def _new_question(self,data):
+		
+		pass
 
 		
+
+class Question(web.RequestHandler):
+
+	def get(self):
+		
+		pass
 			
-
-		

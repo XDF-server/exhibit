@@ -4,59 +4,16 @@
 	<div id = "page" class = "row  text-center">
 		<nav>
 			<ul class="pager">
-    				<li><a href="#">上一页</a></li>
+    				<li class = "disabled"><a href="#">上一页</a></li>
     				<li><a href="#">下一页</a></li>
 			</ul>
 		</nav>
 	</div>
 
-	<div id = "navbar" class = "row navbar-fixed-bottom">	
-
- 		 <div class="col-lg-3 col-lg-offset-1 vertical-offset-lg dropup">
-    			<div class="input-group">
-      				<div class="input-group-btn">
-					<button type="button" class="btn btn-default" aria-haspopup="true" aria-expanded="false">题型筛选</button>
-        				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
-        					<ul class="dropdown-menu">
-          						<li><a href="#">选择题</a></li>
-							<li><a href="#">填空题</a></li>
-		 					<li><a href="#">判断题</a></li>
-						<!--	<li role="separator" class="divider"></li> -->
-							<li><a href="#">解答题</a></li>
-        					</ul>
-				</div><!-- /btn-group -->
-      				<input type="text" class="form-control" aria-label="...">
-    			</div><!-- /input-group -->
-  		</div><!-- /.col-lg-6 -->
-
-		<div class="col-lg-3 col-lg-offset-1 vertical-offset-lg dropup">
-    			<div class="input-group">
-      				<div class="input-group-btn">
-					<button type="button" class="btn btn-default" aria-haspopup="true" aria-expanded="false">学科筛选</button>
-        				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
-        					<ul class="dropdown-menu">
-          						<li><a href="#">数学</a></li>
-							<li><a href="#"></a></li>
-		 					<li><a href="#">英语</a></li>
-						<!--	<li role="separator" class="divider"></li> -->
-							<li><a href="#">历史</a></li>
-        					</ul>
-				</div><!-- /btn-group -->
-      				<input type="text" class="form-control" aria-label="...">
-    			</div><!-- /input-group -->
-  		</div><!-- /.col-lg-6 -->
-
-
-		<form id = "navbar-form" class="navbar-form vertical-center vertical-offset" role="search" >
-			<div class="form-group col-lg-offset-1">
-				<input type="text" class="form-control" placeholder="搜索">
-			</div>
-			<button type="submit" class="btn btn-default">搜索</button>
-		</form>
-	</div>
+	</br>
 
 	<div id = "question_info" class = "row">
-		<div class = "jumbotron col-lg-6">
+		<div class = "alert alert-info col-lg-6">
 			<p class = "text-muted">
 				<span>选择题</span>
 				<span class = "col-lg-offset-8">非常难</span>
@@ -89,5 +46,23 @@
 		<img src = "{{ analysis_img_url }}" class = "col-lg-6"/>
 	</div>	
 
+
+	<div id = "mark" class = "row text-center">
+		<button type="button" id="body_error" data-loading-text="已标记" class="btn btn-info btn-lg col-lg-offset-1" autocomplete="off">
+			题干错误
+		</button>
+
+		<button type="button" id="answer_error" data-loading-text="已标记" class="btn btn-success btn-lg col-lg-offset-1" autocomplete="off">
+			答案错误
+		</button>
+
+		<button type="button" id="analysis_error" data-loading-text="已标记" class="btn btn-warning btn-lg col-lg-offset-1" autocomplete="off">
+			解析错误
+		</button>
+
+	</div>
+
 </div>
+
+
 

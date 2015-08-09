@@ -11,13 +11,55 @@
 </div>
 
 <!-- 导航栏 -->
-<div id="navbar" class="navbar-offset">
-	<a href="manage_auto_replenish_order.php" class="btn btn-link" target="_blank"></a>
-	<a href="data_export.php" target="_blank" class="btn btn-link"></a>
-	<a href="batch_replenish_order.php" target="_blank" class="btn btn-link"></a>
-	<a href="check_order.php" target="_blank" class="btn btn-link"></a>
-	<a href="R_manual_import.php" target="_blank" class="btn btn-link"></a>
+<div id = "navbar" class = "row navbar-fixed-bottom col-lg-offset-4">
+
+	 <div class="col-lg-3 dropup">
+		<div class="input-group">
+			<div class="input-group-btn">
+				<button type="button" class="btn btn-default" aria-haspopup="true" aria-expanded="false">题型筛选</button>
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-h
+aspopup="true" aria-expanded="false"><span class="caret"></span></button>
+					<ul class="dropdown-menu">
+						<li><a href="#">选择题</a></li>
+						<li><a href="#">填空题</a></li>
+						<li><a href="#">判断题</a></li>
+					<!--    <li role="separator" class="divider"></li> -->
+						<li><a href="#">解答题</a></li>
+					</ul>
+			</div><!-- /btn-group -->
+			<input type="text" class="form-control" aria-label="...">
+		</div><!-- /input-group -->
+	</div><!-- /.col-lg-6 -->
+
+	<div class="col-lg-3 col-lg-offset-1 dropup">
+		<div class="input-group">
+			<div class="input-group-btn">
+				<button type="button" class="btn btn-default" aria-haspopup="true" aria-expanded="false">学科筛选</button>
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-h
+aspopup="true" aria-expanded="false"><span class="caret"></span></button>
+					<ul class="dropdown-menu">
+						<li><a href="#">数学</a></li>
+						<li><a href="#"></a></li>
+						<li><a href="#">英语</a></li>
+					<!--    <li role="separator" class="divider"></li> -->
+						<li><a href="#">历史</a></li>
+					</ul>
+			</div><!-- /btn-group -->
+			<input type="text" class="form-control" aria-label="...">
+		</div><!-- /input-group -->
+	</div><!-- /.col-lg-6 -->
+
+<!--搜索-->
+<!--
+	<form id = "navbar-form" class="navbar-form vertical-center vertical-offset" role="search" >
+		<div class="form-group col-lg-offset-1">
+			<input type="text" class="form-control" placeholder="搜索">
+		</div>
+		<button type="submit" class="btn btn-default">搜索</button>
+	</form>
+-->
 </div>
+
 
 <!-- 搜索-->
 <div id="search_bar" class="container-fluid">
