@@ -4,6 +4,7 @@ from design_model import singleton
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from gl import LOG
+from base import Configer
 
 @singleton
 class Mongo(object):
@@ -15,9 +16,14 @@ class Mongo(object):
 		self.collection = None
 
 	def connect(self,db):
-		
+	
+		configer = Configer()
+
+		mongo_host = configer.get_configer('MONGO','host')
+		mongo_port = int(configer.get_configer('MONGO','port'))
+			
 		try:
-			self.client = MongoClient(host = 'localhost',port = 27017)
+			self.client = MongoClient(host = mongo_host,port = mongo_port)
 			self.db = self.client[db]
 	
 		except ConnectionFailure,e:

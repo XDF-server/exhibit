@@ -29,6 +29,8 @@ if __name__ == "__main__":
 		(r'/uptoken',Uptoken),
 		(r'/index',Index),
 		(r'/search',Search),
+		(r'/front',Front),
+		(r'/next',Next),
 	],
 	template_path = os.path.join(os.path.dirname(__file__),os.pardir,'templates'),
 	static_path = os.path.join(os.path.dirname(__file__),os.pardir,'static'),

@@ -4,6 +4,17 @@
 
 {% include "old_question_show.html" %}
 
+<div id = "page" class = "row  text-center">
+                <nav>
+                        <ul class="pager">
+                                <li class = "{{ front_is_able }}"><a {{ front }} >上一页</a></li>
+                                <li class = "{{ next_is_able }}" ><a {{ next }} >下一页</a></li>
+                        </ul>
+                </nav>
+        </div>
+
+        </br>
+
 
 {% include "footer.html" %}
 

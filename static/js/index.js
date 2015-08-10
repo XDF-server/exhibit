@@ -35,6 +35,8 @@ $(function(){
 
 		if(0 == check_input())
 		{
+			data = $("#search-data").val()
+			$("#search_data").attr("value",data);
 			$("#search_type").attr("value","1");
 			$("#search-form").submit();
 			clear_last_input()
@@ -45,21 +47,13 @@ $(function(){
 			input_warning();
 		}
 	});
-/*
-	$("#qid-search").click(function(){
-		if(0 == check_input())
-		{	
-			$("#search_type").attr("value","2");
-			$("form").submit();
-			clear_last_input()
-		}
-		else
-		{
-			clear_last_input();
-			input_warning();
-		}
-	});
 
+	$("#single_choice").click(function(){
+			$("#search_type").attr("value","2");
+			$("#search_data").attr("value","1")
+			$("#search-form").submit();
+	});
+/*
 	$("#cp-id-search").click(function(){
 		if(0 == check_input())
 		{	

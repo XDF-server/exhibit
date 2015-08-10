@@ -160,7 +160,6 @@ class UploadQuestion(web.RequestHandler):
 			essential_keys = set(['json','html','topic','seriess','level','type','timestamp','secret'])
 
 			if Base.check_parameter(set(self.request.arguments.keys()),essential_keys):
-				
 				ret['code'] = -5
 				ret['message'] = 'parameter is wrong'
 				break
@@ -177,89 +176,101 @@ class UploadQuestion(web.RequestHandler):
 			key = question_topic + question_seriess + question_level + question_type + timestamp
 			secret_key = sha1(key).hexdigest()
 
-			#if secret == secret_key:
-			topic_list = question_topic.split(',')
-			seriess_list = question_seriess.split(',')
+			if secret == secret_key:
+				
+				try:
+					if Base.empty(question_topic) is False:
+						topic_list = question_topic.split(',')
 
-			try:
+						for question_theme in topic_list:
+							Business.is_topic(question_theme)
+
+					if Base.empty(question_seriess) is False:
+						seriess_list = question_seriess.split(',')
+
+						for question_special in seriess_list:
+							Business.is_seriess(question_special)
+
+				except CKException as e:
+					ret['code'] = -6
+					ret['message'] = 'check failed'
+
+					break
+
+				qiniu = QiniuWrap()
+
+				json_key = 'tmp_' + secret_key + '.json'
+				if qiniu.upload_data("temp",json_key,question_json) is not None:
+					ret['code'] = -2
+					ret['message'] = 'upload json failed'
+					break
+				
+				html_key = 'tmp_' + secret_key + '.html'
+				if qiniu.upload_data("temp",html_key,question_html) is not None:
+					ret['code'] = -3
+					ret['message'] = 'upload html failed'
+					break
+
+				db = Mysql()
+
+				question_sql = "insert into entity_question (difficulty,question_docx,html,upload_time,question_type) values (%(level)d,'%(json)s','%(html)s',now(),%(type)d);"
+				
+				link_topic_sql = "insert into link_question_topic (question_id,topic_id) values (%(q_id)d,%(t_id)d);"
+				link_series_sql = "insert into link_question_series (question_id,series_id) values (%(q_id)d,%(s_id)d);"
+			
+				try:
+					db.connect_test()
+					db.start_event()
+					question_res = db.exec_event(question_sql,level = int(question_level),json = json_key,html = html_key,type = int(question_type))
+					question_sql = db.get_last_sql()
+					question_id = db.get_last_id()
+					LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (question_sql,question_res,question_id))
+				
+					if Base.empty(question_topic) is False:
+						for question_theme in topic_list:
+							topic_res = db.exec_event(link_topic_sql,q_id = int(question_id),t_id = int(question_theme))
+							topic_sql = db.get_last_sql()
+							topic_id = db.get_last_id()
+							LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (link_topic_sql,topic_res,topic_id))
+					if Base.empty(question_seriess) is False:
+						for question_special in seriess_list:
+							series_res = db.exec_event(link_series_sql,q_id = int(question_id),s_id = int(question_special))
+							series_sql = db.get_last_sql()
+							series_id = db.get_last_id()
+							LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (link_series_sql,series_res,series_id))
+
+				except DBException as e:
+					ret['code'] = -4
+					ret['message'] = 'db event failed'
+					break
+				
+					
+				question_json = urllib.unquote(question_json)
 				encode_json = json.loads(question_json,encoding = 'utf-8')
-
-				for question_theme in topic_list:
-					Business.is_topic(question_theme)
-
-				for question_special in seriess_list:
-					Business.is_seriess(question_special)
-
-			except CKException as e:
-				ret['code'] = -6
-				ret['message'] = 'check failed'
-
-				break
-
-			qiniu = QiniuWrap()
-
-			json_key = 'tmp_' + secret_key + '.json'
-			if qiniu.upload_data("temp",json_key,question_json) is not None:
 				
-				ret['code'] = -2
-				ret['message'] = 'upload json failed'
-				break
-			
-			html_key = 'tmp_' + secret_key + '.html'
-			if qiniu.upload_data("temp",html_key,question_html) is not None:
-				
-				ret['code'] = -3
-				ret['message'] = 'upload html failed'
-				break
+				question_html = urllib.unquote(question_html)
+				encode_html = json.loads(question_html,encoding = 'utf-8')
 
-			db = Mysql()
+				encode_json['question_id'] = question_id
+				encode_html['question_id'] = question_id
 
-			question_sql = "insert into entity_question (difficulty,question_docx,html,upload_time,question_type) values (%(level)d,'%(json)s','%(html)s',now(),%(type)d);"
-			
-			link_topic_sql = "insert into link_question_topic (question_id,topic_id) values (%(q_id)d,%(t_id)d);"
-			link_series_sql = "insert into link_question_series (question_id,series_id) values (%(q_id)d,%(s_id)d);"
+				mongo = Mongo()
+				mongo.connect('resource')
+				mongo.select_collection('mongo_question_json')
+				mongo.insert_one(encode_json)
 
-		
-			try:
-				db.connect_test()
-				db.start_event()
-				question_res = db.exec_event(question_sql,level = int(question_level),json = json_key,html = html_key,type = int(question_type))
-				question_sql = db.get_last_sql()
-				question_id = db.get_last_id()
-				LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (question_sql,question_res,question_id))
-			
-				for question_theme in topic_list:
-					topic_res = db.exec_event(link_topic_sql,q_id = int(question_id),t_id = int(question_theme))
-					topic_sql = db.get_last_sql()
-					topic_id = db.get_last_id()
-					LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (link_topic_sql,topic_res,topic_id))
-				
-				for question_special in seriess_list:
-					series_res = db.exec_event(link_series_sql,q_id = int(question_id),s_id = int(question_special))
-					series_sql = db.get_last_sql()
-					series_id = db.get_last_id()
-					LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (link_series_sql,series_res,series_id))
+				mongo.select_collection('mongo_question_html')
+				mongo.insert_one(encode_html)
 
-			except DBException as e:
-				ret['code'] = -4
-				ret['message'] = 'db event failed'
-				break
-			
-			encode_json['question_id'] = question_id
+				db.end_event()
 
-			mongo = Mongo()
-			mongo.insert_one(encode_json)
+				ret['code'] = 0
+				ret['message'] = 'success'
+				ret['id'] = question_id
 
-			db.end_event()
-
-			ret['code'] = 0
-			ret['message'] = 'success'
-			ret['id'] = question_id
-
-			#else:
-			#ret['code'] = -1
-			#ret['message'] = 'secure key error'
-
+			else:
+				ret['code'] = -1
+				ret['message'] = 'secure key error'
 
 		LOG.info('PARAMETER OUT[%s]' % ret)
 		LOG.info('API OUT[%s]' % (self.__class__.__name__))

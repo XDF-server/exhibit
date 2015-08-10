@@ -33,7 +33,12 @@ class Base(object):
 			return False
 		else:
 			print True
+	
 			return True
+	@staticmethod
+	def empty(s):
+
+		True if 0 == len(s) else False
 
 @singleton
 class Configer(object):

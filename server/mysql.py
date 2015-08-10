@@ -30,12 +30,12 @@ class Mysql(object):
 
 		configer = Configer()
 	
-		host = configer.get_configer('MYSQL_MASTER','host')
-		port = configer.get_configer('MYSQL_MASTER','port')
-		user = configer.get_configer('MYSQL_MASTER','user')
-		passwd = configer.get_configer('MYSQL_MASTER','passwd')
-		db = configer.get_configer('MYSQL_MASTER','db')
-		charset = configer.get_configer('MYSQL_MASTER','charset')
+		host = configer.get_configer('MYSQL','host')
+		port = configer.get_configer('MYSQL','port')
+		user = configer.get_configer('MYSQL','user')
+		passwd = configer.get_configer('MYSQL','passwd')
+		db = configer.get_configer('MYSQL','db')
+		charset = configer.get_configer('MYSQL','charset')
 
 		try:
 			self.conn = MySQLdb.connect(
@@ -64,7 +64,7 @@ class Mysql(object):
 
 		try:
 			self.conn = MySQLdb.connect(
-					host = '127.0.0.1',
+					host = '10.60.0.151',
 					port = 3306,
 					user = 'root',
 					passwd = '1a2s3dqwe', 
@@ -140,6 +140,11 @@ class Mysql(object):
 	def fetch(self):
 		
 		return self.cur.fetchone()
+
+	def fetchall(self):
+		
+		return self.cur.fetchall()
+
 
 	def get_last_sql(self):
 				

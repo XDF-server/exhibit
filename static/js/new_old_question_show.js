@@ -14,4 +14,5 @@ $(function(){
     		var $btn = $(this).button('loading')
 		//$btn.button('reset')
 	})
+
 });

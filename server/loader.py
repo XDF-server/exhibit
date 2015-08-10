@@ -15,14 +15,12 @@ logger = Logger(info = log_info,path = log_path,format = log_format)
 from mongo import Mongo
 
 mongo = Mongo()
-mongo.connect('resource')
-mongo.select_collection('mongo_question_json')
 
 from mysql import Mysql
 
 mysql = Mysql()
 
-mysql.connect_test()
+mysql.connect_master()
 
 from qiniu_wrap import QiniuWrap
 
