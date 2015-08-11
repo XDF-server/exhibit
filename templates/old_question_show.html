@@ -14,29 +14,13 @@
 	
 	</br>
 
-	<div id = "quesion_body" class = "row">
-		<img src = "{{ body_img_url }}" class = "col-lg-6"/>
+	{% for url in url_list %}
+	<div class = "row">
+		<img src = "{{ url }}" class = "col-lg-6"/>
 	</div>	
 	
 	</br>
-
-	<div id = "question_option" class = "row">
-		<img src = "{{ option_img_url }}" class = "col-lg-6"/>
-	</div>	
-
-	</br>
-
-	<div id = "question_answer" class = "row">
-		<img src = "{{ answer_img_url }}" class = "col-lg-6"/>
-	</div>	
-
-	</br></br>
-
-
-	<div id = "quesiont_analysis" class = "row">
-		<img src = "{{ analysis_img_url }}" class = "col-lg-6"/>
-	</div>	
-
+	{% end %}
 
 	<div id = "mark" class = "row text-center">
 		<button type="button" id="body_error" data-loading-text="已标记" class="btn btn-info btn-lg col-lg-offset-1" autocomplete="off">

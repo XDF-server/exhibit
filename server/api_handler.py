@@ -219,7 +219,7 @@ class UploadQuestion(web.RequestHandler):
 				link_series_sql = "insert into link_question_series (question_id,series_id) values (%(q_id)d,%(s_id)d);"
 			
 				try:
-					db.connect_test()
+					db.connect_master()
 					db.start_event()
 					question_res = db.exec_event(question_sql,level = int(question_level),json = json_key,html = html_key,type = int(question_type))
 					question_sql = db.get_last_sql()

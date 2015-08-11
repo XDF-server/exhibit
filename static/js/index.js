@@ -53,33 +53,47 @@ $(function(){
 			$("#search_data").attr("value","1")
 			$("#search-form").submit();
 	});
-/*
-	$("#cp-id-search").click(function(){
-		if(0 == check_input())
-		{	
-			$("#search_type").attr("value","3");
-			$("form").submit();
-			clear_last_input()
-		}
-		else
-		{
-			clear_last_input();
-			input_warning();
-		}
+
+	$("#gap_filling").click(function(){
+			$("#search_type").attr("value","2");
+			$("#search_data").attr("value","2")
+			$("#search-form").submit();
 	});
 	
-	$("#voucher-id-search").click(function(){
-		if(0 == check_input())
-		{	
-			$("#search_type").attr("value","4");
-			$("form").submit();
-			clear_last_input()
-		}
-		else
-		{
-			clear_last_input();
-			input_warning();
-		}
+ 	$("#true_or_false").click(function(){
+			$("#search_type").attr("value","2");
+			$("#search_data").attr("value","3")
+			$("#search-form").submit();
 	});
-*/
+
+	$("#short_answer").click(function(){
+			$("#search_type").attr("value","2");
+			$("#search_data").attr("value","4")
+			$("#search-form").submit();
+	});
+
+	$("#math").click(function(){
+			$("#search_type").attr("value","3");
+			$("#search_data").attr("value","1")
+			$("#search-form").submit();
+	});
+
+	$("#chinese").click(function(){
+			$("#search_type").attr("value","3");
+			$("#search_data").attr("value","2")
+			$("#search-form").submit();
+	});
+	
+ 	$("#english").click(function(){
+			$("#search_type").attr("value","3");
+			$("#search_data").attr("value","3")
+			$("#search-form").submit();
+	});
+
+	$("#history").click(function(){
+			$("#search_type").attr("value","3");
+			$("#search_data").attr("value","4")
+			$("#search-form").submit();
+	});
+
 });
