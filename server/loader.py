@@ -16,6 +16,8 @@ from mongo import Mongo
 
 mongo = Mongo()
 
+mongo.connect('resource')
+
 from mysql import Mysql
 
 mysql = Mysql()

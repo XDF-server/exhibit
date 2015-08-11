@@ -2,9 +2,10 @@
 
 from design_model import singleton
 from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure
+from pymongo.errors import ConnectionFailure,ServerSelectionTimeoutError
 from gl import LOG
 from base import Configer
+from exception import DBException
 
 @singleton
 class Mongo(object):
@@ -28,10 +29,16 @@ class Mongo(object):
 	
 		except ConnectionFailure,e:
 			LOG.error('mongo connect failed [%s]' % e)
+			raise DBException('mongo connect failed')
 
 	def select_collection(self,collection):
+		
+		try:
+			self.collection = self.db[collection]
 
-		self.collection = self.db[collection]
+		except ServerSelectionTimeoutError as e:
+			LOG.error('mongo select failed [%s]' % e)
+			raise DBException('mongo select failed')
 		
 	def insert_one(self,data):
 		

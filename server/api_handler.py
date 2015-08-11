@@ -255,12 +255,19 @@ class UploadQuestion(web.RequestHandler):
 				encode_html['question_id'] = question_id
 
 				mongo = Mongo()
-				mongo.connect('resource')
-				mongo.select_collection('mongo_question_json')
-				mongo.insert_one(encode_json)
+				#mongo.connect('resource')
+				try:
+					mongo.select_collection('mongo_question_json')
+					mongo.insert_one(encode_json)
 
-				mongo.select_collection('mongo_question_html')
-				mongo.insert_one(encode_html)
+					mongo.select_collection('mongo_question_html')
+					mongo.insert_one(encode_html)
+				
+				except DBException as e:
+					ret['code'] = -7
+					ret['message'] = 'mongo failed'
+					break
+
 
 				db.end_event()
 
