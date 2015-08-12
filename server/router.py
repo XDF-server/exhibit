@@ -30,6 +30,9 @@ if __name__ == "__main__":
 		(r'/index',Index),
 		(r'/search',Search),
 		(r'/page',Page),
+		(r'/mark',Mark),
+		(r'/addmark',AddMark),
+
 	],
 	template_path = os.path.join(os.path.dirname(__file__),os.pardir,'templates'),
 	static_path = os.path.join(os.path.dirname(__file__),os.pardir,'static'),

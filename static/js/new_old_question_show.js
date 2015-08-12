@@ -1,18 +1,47 @@
 $(function(){
 
-	$('#body_error').on('click', function () {
-    		var $btn = $(this).button('loading')
-		//$btn.button('reset')
-	})
-		
-	$('#answer_error').on('click', function () {
-    		var $btn = $(this).button('loading')
-		//$btn.button('reset')
-	})
-	
-	$('#analysis_error').on('click', function () {
-    		var $btn = $(this).button('loading')
-		//$btn.button('reset')
-	})
+	$('button[name=mark_btn]').on('click', function () {
 
+		var mark = $(this).attr("id")
+		var oldid = $("div#q_old_id").text()
+		var this_btn = $(this)
+
+		$.ajax({
+			type : "post",
+			url : "/mark",
+			data:{"mark" : mark,"oldid" : oldid},
+			success:function(msg){
+				if (msg == 'ok'){
+
+					alert('haha')
+    					this_btn.button('loading');
+				}
+				else{
+					this_btn.button('reset');
+				}
+			}
+		});
+	});
+
+	$('button#add_mark').on('click',function() {
+		
+		var name = $("input#mark_data").val()
+		var oldid = $("div#q_old_id").text()
+
+		$.ajax({
+			type : "post",
+			url : "/addmark",
+			data:{"name" : name,"oldid" : oldid},
+			success:function(msg){
+				if (msg == 'ok'){
+					alert('添加成功');
+				}
+				else{
+					alert('添加失败');
+				}
+			}
+		});
+
+	});
+		
 });

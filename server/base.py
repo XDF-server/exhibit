@@ -38,7 +38,7 @@ class Base(object):
 	@staticmethod
 	def empty(s):
 
-		True if 0 == len(s) else False
+		return True if 0 == len(s) else False
 
 @singleton
 class Configer(object):
@@ -80,7 +80,9 @@ class Logger(object):
 
 if __name__ == '__main__':
 
-	keys = set(['a','b'])
-	enssential = set(['c'])
-	print Base.check_parameter(keys,enssential)
-	print keys < enssential
+	#keys = set(['a','b'])
+	#enssential = set(['c'])
+	#print Base.check_parameter(keys,enssential)
+	#print keys < enssential
+
+	print Base.empty('1')

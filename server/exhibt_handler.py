@@ -80,13 +80,19 @@ class Search(web.RequestHandler):
 		#self.set_secure_cookie("pid",str(pid),expires_days = None)
 
 		qid = filted_set[0][0]
+		subject = filted_set[0][1]
 
-		index_dict = {'title' : '新旧题对比展示'}
+		index_dict = {'title' : '新旧题对比展示','subject' : subject}
 
 		old_dict = self._old_question(qid)
 
 		combine_dict = dict(index_dict,**old_dict)
-			
+		
+		mark_list = Business.q_mark_list()
+		
+		mark_dict = {'mark_list' : mark_list}
+
+		combine_dict = dict(combine_dict,**mark_dict)
 
 		front_url = r'href = /page?type=2&data=%s&page=%d' % (filted_data,pid-1)
 		next_url = r'href = /page?type=2&data=%s&page=%d' % (filted_data,pid+1)
@@ -103,6 +109,8 @@ class Search(web.RequestHandler):
 			page_dict["front"] = ""
 
 		combine_dict = dict(combine_dict,**page_dict)
+
+		print combine_dict
 
 		self.render("new_old_question_show.html",**combine_dict)
 
@@ -140,13 +148,20 @@ class Search(web.RequestHandler):
 		#self.set_secure_cookie("pid",str(pid),expires_days = None)
 
 		qid = filted_set[0][0]
+		subject = filted_set[0][1]
 
-		index_dict = {'title' : '新旧题对比展示'}
+		index_dict = {'title' : '新旧题对比展示','subject' : subject}
 
 		old_dict = self._old_question(qid)
 
 		combine_dict = dict(index_dict,**old_dict)
-			
+		
+		mark_list = Business.q_mark_list()
+		
+		mark_dict = {'mark_list' : mark_list}
+
+		combine_dict = dict(combine_dict,**mark_dict)
+
 		front_url = r'href = /page?type=3&data=%s&page=%d' % (filted_data,pid-1)
 		next_url = r'href = /page?type=3&data=%s&page=%d' % (filted_data,pid+1)
 
@@ -177,7 +192,7 @@ class Search(web.RequestHandler):
 			try:
 				mysql.connect_test()
 				
-				search_sql = "select id,question_body,question_options,question_answer,question_analysis,question_type,difficulty from entity_question where id = %(question_id)d;"
+				search_sql = "select id,question_body,question_options,question_answer,question_analysis,question_type,difficulty from entity_question_old where id = %(question_id)d;"
 				mysql.query(search_sql,question_id = int(data))	
 
 				question_set = mysql.fetch()
@@ -221,7 +236,7 @@ class Search(web.RequestHandler):
 			analysis_url = domain % (analysis_bucket,question_analysis)
 			url_list.append(analysis_url)
 	
-		return {'url_list' : url_list,'type' : question_type,'level' : question_level}
+		return {'url_list' : url_list,'type' : question_type,'level' : question_level,'q_old_id' : data}
 
 	def _new_question(self,data):
 		
@@ -251,8 +266,9 @@ class Page(web.RequestHandler):
 		filted_set = getattr(Business,access)(filted_data,pid,1)
 
                 qid = filted_set[0][0]
+		subject	= filted_set[0][1]
 
-                index_dict = {'title' : '新旧题对比展示'}
+                index_dict = {'title' : '新旧题对比展示','subject' : subject}
 
                 old_dict = Search._old_question(qid)
 
@@ -262,6 +278,12 @@ class Page(web.RequestHandler):
        
                 num = getattr(Business,num_access)(filted_data)
 		
+		mark_list = Business.q_mark_list()
+		
+		mark_dict = {'mark_list' : mark_list}
+
+		combine_dict = dict(combine_dict,**mark_dict)
+
 		front_url = r'href = /page?type=%s&data=%s&page=%d' % (filted_type,filted_data,pid-1)
 		next_url = r'href = /page?type=%s&data=%s&page=%d' % (filted_type,filted_data,pid+1)
 
@@ -282,4 +304,57 @@ class Page(web.RequestHandler):
 
                 self.render("new_old_question_show.html",**combine_dict)
 
-		
+class Mark(web.RequestHandler):
+	
+	def post(self):
+
+		if 'mark' not in self.request.arguments.keys():
+			self.write('no')
+			return
+                else:
+                        mark = int(''.join(self.request.arguments['mark']))
+        
+                if 'oldid' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+                else:
+			oldid= int(''.join(self.request.arguments['oldid']))
+
+		try:
+			if Business.q_mark(oldid,0,mark) is not None:
+				self.write('ok')
+
+		except DBException as e:
+			self.write('no')
+			return
+
+class AddMark(web.RequestHandler):
+	
+	def post(self):
+
+                if 'name' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+                else:
+                        name = ''.join(self.request.arguments['name'])
+
+		if 'oldid' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+                else:
+			oldid= int(''.join(self.request.arguments['oldid']))
+
+		try:
+			mark = Business.add_mark(name)
+
+			if mark is not None:
+				if Business.q_mark(oldid,0,mark) is not None:
+					self.write('ok')
+			else:
+				self.write('no')
+                        	return
+
+		except DBException as e:
+			self.write('no')
+			return
+	

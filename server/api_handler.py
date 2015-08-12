@@ -161,7 +161,7 @@ class UploadQuestion(web.RequestHandler):
 
 			if Base.check_parameter(set(self.request.arguments.keys()),essential_keys):
 				ret['code'] = -5
-				ret['message'] = 'parameter is wrong'
+				ret['message'] = 'parameter error'
 				break
 
 			question_json = ''.join(self.request.arguments['json'])
@@ -176,6 +176,17 @@ class UploadQuestion(web.RequestHandler):
 			key = question_topic + question_seriess + question_level + question_type + timestamp
 			secret_key = sha1(key).hexdigest()
 
+			try:
+				question_json = urllib.unquote(question_json)
+				encode_json = json.loads(question_json,encoding = 'utf-8')
+				question_html = urllib.unquote(question_html)
+				encode_html = json.loads(question_html,encoding = 'utf-8')
+
+			except (ValueError,KeyError,TypeError):
+				ret['code'] = -8
+				ret['message'] = 'json format error'
+				break
+	
 			if secret == secret_key:
 				
 				try:
@@ -193,7 +204,7 @@ class UploadQuestion(web.RequestHandler):
 
 				except CKException as e:
 					ret['code'] = -6
-					ret['message'] = 'check failed'
+					ret['message'] = 'check error'
 
 					break
 
@@ -202,13 +213,13 @@ class UploadQuestion(web.RequestHandler):
 				json_key = 'tmp_' + secret_key + '.json'
 				if qiniu.upload_data("temp",json_key,question_json) is not None:
 					ret['code'] = -2
-					ret['message'] = 'upload json failed'
+					ret['message'] = 'upload json error'
 					break
 				
 				html_key = 'tmp_' + secret_key + '.html'
 				if qiniu.upload_data("temp",html_key,question_html) is not None:
 					ret['code'] = -3
-					ret['message'] = 'upload html failed'
+					ret['message'] = 'upload html error'
 					break
 
 				db = Mysql()
@@ -217,7 +228,7 @@ class UploadQuestion(web.RequestHandler):
 				
 				link_topic_sql = "insert into link_question_topic (question_id,topic_id) values (%(q_id)d,%(t_id)d);"
 				link_series_sql = "insert into link_question_series (question_id,series_id) values (%(q_id)d,%(s_id)d);"
-			
+
 				try:
 					db.connect_master()
 					db.start_event()
@@ -225,14 +236,17 @@ class UploadQuestion(web.RequestHandler):
 					question_sql = db.get_last_sql()
 					question_id = db.get_last_id()
 					LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (question_sql,question_res,question_id))
-				
+			
 					if Base.empty(question_topic) is False:
+						topic_list = question_topic.split(',')
 						for question_theme in topic_list:
 							topic_res = db.exec_event(link_topic_sql,q_id = int(question_id),t_id = int(question_theme))
 							topic_sql = db.get_last_sql()
 							topic_id = db.get_last_id()
 							LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (link_topic_sql,topic_res,topic_id))
 					if Base.empty(question_seriess) is False:
+						seriess_list = question_seriess.split(',')
+
 						for question_special in seriess_list:
 							series_res = db.exec_event(link_series_sql,q_id = int(question_id),s_id = int(question_special))
 							series_sql = db.get_last_sql()
@@ -241,31 +255,27 @@ class UploadQuestion(web.RequestHandler):
 
 				except DBException as e:
 					ret['code'] = -4
-					ret['message'] = 'db event failed'
+					ret['message'] = 'mysql event error'
 					break
 				
-					
-				question_json = urllib.unquote(question_json)
-				encode_json = json.loads(question_json,encoding = 'utf-8')
-				
-				question_html = urllib.unquote(question_html)
-				encode_html = json.loads(question_html,encoding = 'utf-8')
-
 				encode_json['question_id'] = question_id
 				encode_html['question_id'] = question_id
 
 				mongo = Mongo()
-				#mongo.connect('resource')
+
 				try:
+					mongo.connect('resource')
 					mongo.select_collection('mongo_question_json')
-					mongo.insert_one(encode_json)
+					json_id = mongo.insert_one(encode_json)
+					LOG.info('MONGO[insert json] - DATA[%s] - INS[%s]' % (encode_json,json_id))
 
 					mongo.select_collection('mongo_question_html')
-					mongo.insert_one(encode_html)
-				
+					html_id = mongo.insert_one(encode_html)
+					LOG.info('MONGO[insert html] - DATA[%s] - INS[%s]' % (encode_html,html_id))
+
 				except DBException as e:
 					ret['code'] = -7
-					ret['message'] = 'mongo failed'
+					ret['message'] = 'mongo error'
 					break
 
 
