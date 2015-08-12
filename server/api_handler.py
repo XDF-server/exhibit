@@ -179,6 +179,13 @@ class UploadQuestion(web.RequestHandler):
 				ret['message'] = 'invalid parameters'
 				LOG.error('ERR[level is invalid]') 
 				break
+
+			if Base.empty(timestamp):
+				ret['code'] = 1
+				ret['message'] = 'invalid parameters'
+				LOG.error('ERR[timestamp empty]') 
+				break
+
 			
 			try:
 				question_json = urllib.unquote(question_json)

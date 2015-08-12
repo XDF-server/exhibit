@@ -186,8 +186,6 @@ class Search(web.RequestHandler):
 
 		self.render("new_old_question_show.html",**combine_dict)
 
-		pass
-
 	@staticmethod
 	def _old_question(data):
 
@@ -245,7 +243,22 @@ class Search(web.RequestHandler):
 		return {'url_list' : url_list,'type' : question_type,'level' : question_level,'q_old_id' : data}
 
 	def _new_question(self,data):
+	
+		for i in range(1):
 		
+			mysql = Mysql()
+			
+			try:
+				mysql.connect_test()
+				
+				search_sql = "select id,json from entity_question_new where id = %(question_id)d;"
+				mysql.query(search_sql,question_id = int(data))	
+
+				question_set = mysql.fetch()
+
+			except DBException as e:
+				break
+
 		pass
 
 class Page(web.RequestHandler):
