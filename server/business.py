@@ -44,6 +44,17 @@ class Business(object):
 		except DBException as e:
 			LOG.error('check seriess error [%s]' % e)
 			raise CkException('check seriess error')
+
+	@staticmethod 
+	def is_level(level_id):
+		
+		level_dict = {"1" : "简单","2" : "中等","3" : "困难","4" : "极难"}	
+
+		if str(level_id) in level_dict.keys():
+			return True
+
+		return False
+		
 	@staticmethod
 	def q_type_filter_num(type):
 

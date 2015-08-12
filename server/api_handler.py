@@ -151,7 +151,6 @@ class UploadQuestion(web.RequestHandler):
 	def post(self):
 		
 		for i in range(1):
-
 			LOG.info('API IN[%s]' % (self.__class__.__name__))
 			LOG.info('PARAMETER IN[%s]' % self.request.arguments)
 			
@@ -160,8 +159,9 @@ class UploadQuestion(web.RequestHandler):
 			essential_keys = set(['json','html','topic','seriess','level','type','timestamp','secret'])
 
 			if Base.check_parameter(set(self.request.arguments.keys()),essential_keys):
-				ret['code'] = -5
-				ret['message'] = 'parameter error'
+				ret['code'] = 1
+				ret['message'] = 'invalid parameters'
+				LOG.error('ERR[in parameter invalid]') 
 				break
 
 			question_json = ''.join(self.request.arguments['json'])
@@ -173,53 +173,75 @@ class UploadQuestion(web.RequestHandler):
 			timestamp = ''.join(self.request.arguments['timestamp'])
 			secret = ''.join(self.request.arguments['secret'])
 
-			key = question_topic + question_seriess + question_level + question_type + timestamp
-			secret_key = sha1(key).hexdigest()
-
+			if Business.is_level(question_level) is False:
+				ret['code'] = 1
+				ret['message'] = 'invalid parameters'
+				LOG.error('ERR[level is invalid]') 
+				break
+			
 			try:
 				question_json = urllib.unquote(question_json)
 				encode_json = json.loads(question_json,encoding = 'utf-8')
 				question_html = urllib.unquote(question_html)
 				encode_html = json.loads(question_html,encoding = 'utf-8')
 
-			except (ValueError,KeyError,TypeError):
-				ret['code'] = -8
-				ret['message'] = 'json format error'
-				break
-	
-			if secret == secret_key:
-				
-				try:
-					if Base.empty(question_topic) is False:
-						topic_list = question_topic.split(',')
-
-						for question_theme in topic_list:
-							Business.is_topic(question_theme)
-
-					if Base.empty(question_seriess) is False:
-						seriess_list = question_seriess.split(',')
-
-						for question_special in seriess_list:
-							Business.is_seriess(question_special)
-
-				except CKException as e:
-					ret['code'] = -6
-					ret['message'] = 'check error'
-
+				if Base.empty(question_topic) and Base.empty(question_seriess):
+					ret['code'] = 1
+					ret['message'] = 'invalid parameters'
+					LOG.error('ERR[topic and seriess empty]') 
 					break
 
+				if Base.empty(question_topic) is False:
+					topic_list = question_topic.split(',')
+
+					for question_theme in topic_list:
+						if Business.is_topic(question_theme) is False:
+							ret['code'] = 1
+							ret['message'] = 'invalid parameters'
+							LOG.error('ERR[topic %s invalid]' % question_theme) 
+							break
+
+				if Base.empty(question_seriess) is False:
+					seriess_list = question_seriess.split(',')
+
+					for question_special in seriess_list:
+						if Business.is_seriess(question_special) is False:
+							ret['code'] = 1
+							ret['message'] = 'invalid parameters'
+							LOG.error('ERR[seriess %s invalid]' % question_theme) 
+							break
+
+			except (ValueError,KeyError,TypeError):
+				ret['code'] = 1
+				ret['message'] = 'invalid parameters'
+				LOG.error('ERR[json format invalid]') 
+				break
+			
+			except CKException: 
+				ret['code'] = 3
+				ret['message'] = 'server error'
+				LOG.error('ERR[mysql exception]') 
+				break
+
+			key = question_topic + question_seriess + question_level + question_type + timestamp
+			secret_key = sha1(key).hexdigest()
+				
+			if secret == secret_key:
+				
 				qiniu = QiniuWrap()
 
 				json_key = 'tmp_' + secret_key + '.json'
 				if qiniu.upload_data("temp",json_key,question_json) is not None:
-					ret['code'] = -2
-					ret['message'] = 'upload json error'
+					ret['code'] = 4
+					ret['message'] = 'qiniu error'
+					LOG.error('ERR[json upload  qiniu exception]') 
 					break
 				
 				html_key = 'tmp_' + secret_key + '.html'
 				if qiniu.upload_data("temp",html_key,question_html) is not None:
-					ret['code'] = -3
-					ret['message'] = 'upload html error'
+					ret['code'] = 4
+					ret['message'] = 'qiniu error'
+					LOG.error('ERR[html upload  qiniu exception]') 
 					break
 
 				db = Mysql()
@@ -254,8 +276,8 @@ class UploadQuestion(web.RequestHandler):
 							LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (link_series_sql,series_res,series_id))
 
 				except DBException as e:
-					ret['code'] = -4
-					ret['message'] = 'mysql event error'
+					ret['code'] = 3
+					ret['message'] = 'server error'
 					break
 				
 				encode_json['question_id'] = question_id
@@ -267,17 +289,17 @@ class UploadQuestion(web.RequestHandler):
 					mongo.connect('resource')
 					mongo.select_collection('mongo_question_json')
 					json_id = mongo.insert_one(encode_json)
-					LOG.info('MONGO[insert json] - DATA[%s] - INS[%s]' % (encode_json,json_id))
+					LOG.info('MONGO[insert json] - DATA[%s] - INS[%s]' % (question_json,json_id))
 
 					mongo.select_collection('mongo_question_html')
 					html_id = mongo.insert_one(encode_html)
-					LOG.info('MONGO[insert html] - DATA[%s] - INS[%s]' % (encode_html,html_id))
+					LOG.info('MONGO[insert html] - DATA[%s] - INS[%s]' % (question_html,html_id))
 
 				except DBException as e:
-					ret['code'] = -7
-					ret['message'] = 'mongo error'
+					ret['code'] = 3 
+					ret['message'] = 'server error'
+					LOG.error('ERR[mongo exception]') 
 					break
-
 
 				db.end_event()
 
@@ -286,8 +308,10 @@ class UploadQuestion(web.RequestHandler):
 				ret['id'] = question_id
 
 			else:
-				ret['code'] = -1
+				ret['code'] = 4
 				ret['message'] = 'secure key error'
+				LOG.error('ERR[secure key error]') 
+				break
 
 		LOG.info('PARAMETER OUT[%s]' % ret)
 		LOG.info('API OUT[%s]' % (self.__class__.__name__))

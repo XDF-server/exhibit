@@ -15,9 +15,6 @@ class Base(object):
 	@staticmethod
 	def check_parameter(keys,essential_keys):
 
-		#keys = set(keys)
-		#essential_keys = set(essential_keys)
-
 		if keys == essential_keys:
 			return False
 		else:
@@ -63,15 +60,15 @@ class Logger(object):
 		fh = logging.FileHandler(path)
 		fh.setLevel(logging.DEBUG)
 
-		ch = logging.StreamHandler()
-		ch.setLevel(logging.DEBUG)
+		#ch = logging.StreamHandler()
+		#ch.setLevel(logging.DEBUG)
 
 		formatter = logging.Formatter(format)
 		fh.setFormatter(formatter)
-		ch.setFormatter(formatter)
+		#ch.setFormatter(formatter)
 
 		self.logger.addHandler(fh)
-		self.logger.addHandler(ch)
+		#self.logger.addHandler(ch)
 	
 	def get_logger(self):
 
