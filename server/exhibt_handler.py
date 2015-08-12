@@ -12,7 +12,11 @@ class Index(web.RequestHandler):
 	def get(self):
 
 		title = '首页'
-		self.render('index.html',title = title)
+		
+		subject_list = Business.q_subject_list()
+		type_list = Business.q_type_list()
+
+		self.render('index.html',title = title,type_list = type_list,subject_list = subject_list)
 
 
 class Search(web.RequestHandler):
@@ -49,7 +53,8 @@ class Search(web.RequestHandler):
 
 	def _q_type_filter(self,data):
 
-		filted_data = {'1' : "选择题","2" : "填空题","3" : "判断题","4" : "简答题"}[data]
+		filted_data = data
+		#{'1' : "选择题","2" : "填空题","3" : "判断题","4" : "简答题"}[data]
 
 		if 'page' not in self.request.arguments.keys():
 			pid = 0
@@ -116,7 +121,8 @@ class Search(web.RequestHandler):
 
 	def _q_subject_filter(self,data):
 
-		filted_data = {'1' : "数学" ,"2" : "语文","3" : "英语","4" : "历史"}[data]
+		filted_data = data
+		#{'1' : "数学" ,"2" : "语文","3" : "英语","4" : "历史"}[data]
 
 		if 'page' not in self.request.arguments.keys():
 			pid = 0

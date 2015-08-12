@@ -12,7 +12,7 @@ class Business(object):
 		
 		mysql = Mysql()
 
-		mysql.connect_test()
+		mysql.connect_master()
 		
 		query_sql = "select 1 from entity_topic where id = %(topic_id)d;" 
 		
@@ -31,7 +31,7 @@ class Business(object):
 		
 		mysql = Mysql()
 		
-		mysql.connect_test()
+		mysql.connect_master()
 
 		query_sql = "select 1 from entity_seriess where id = %(seriess_id)d;"
 		
@@ -60,7 +60,7 @@ class Business(object):
 		
 		mysql = Mysql()
 		
-		mysql.connect_test()
+		mysql.connect_master()
 
 		query_sql = "select 1 from entity_question_type where type_id = %(type_id)d;"
 		
@@ -80,7 +80,7 @@ class Business(object):
 
 		mysql = Mysql()
 
-		mysql.connect_test()
+		mysql.connect_master()
 
 		query_sql = "select count(*) from entity_question_new where type = '%(type)s';"	
 
@@ -100,7 +100,7 @@ class Business(object):
 
 		mysql = Mysql()
 
-		mysql.connect_test()
+		mysql.connect_master()
 
 		query_sql = "select oldid,subject from entity_question_new where type = '%(type)s' limit %(start)d,%(num)d;"	
 
@@ -120,7 +120,7 @@ class Business(object):
 
 		mysql = Mysql()
 
-		mysql.connect_test()
+		mysql.connect_master()
 
 		query_sql = "select count(*) from entity_question_new where subject = '%(type)s';"	
 
@@ -140,7 +140,7 @@ class Business(object):
 
 		mysql = Mysql()
 
-		mysql.connect_test()
+		mysql.connect_master()
 
 		query_sql = "select oldid,subject from entity_question_new where subject = '%(type)s' limit %(start)d,%(num)d;"	
 
@@ -160,7 +160,7 @@ class Business(object):
 
 		mysql = Mysql()
 		
-		mysql.connect_test()
+		mysql.connect_master()
 
 		query_sql = "select id,name from link_question_mark;"	
 
@@ -188,7 +188,7 @@ class Business(object):
 
 		mysql = Mysql()
 
-		mysql.connect_test()
+		mysql.connect_master()
 
 		query_sql = "insert into entity_question_mark (oldid,newid,mark,mark_time) values (%(oldid)d,%(newid)d,%(mark)d,now());"	
 
@@ -208,7 +208,7 @@ class Business(object):
 
 		mysql = Mysql()
 
-		mysql.connect_test()
+		mysql.connect_master()
 
 		query_sql = "insert into link_question_mark (name) values ('%(name)s');"	
 
@@ -222,4 +222,60 @@ class Business(object):
 		except DBException as e:
 			LOG.error('add mark error [%s]' % e)
 			raise CkException('add mark error')
+
+	@staticmethod
+	def q_type_list():
+
+		mysql = Mysql()
+		
+		mysql.connect_master()
+
+		query_sql = "select distinct type from entity_question_new where type is not null;"	
+
+		type_list = []
+
+		try:
+			if mysql.query(query_sql) is not None:
+				type_tuple =  mysql.fetchall()
+				
+				for type in type_tuple:
+					tmp_tuple = (type[0])
+					type_list.append(tmp_tuple)
+					print type_list
+				return type_list
+
+			else:
+				return None
+
+		except DBException as e:
+			LOG.error('get type error [%s]' % e)
+			raise CkException('get type error')
+
+	@staticmethod
+	def q_subject_list():
+
+		mysql = Mysql()
+		
+		mysql.connect_master()
+
+		query_sql = "select distinct subject from entity_question_new where type is not null;"	
+
+		subject_list = []
+
+		try:
+			if mysql.query(query_sql) is not None:
+				subject_tuple =  mysql.fetchall()
+				
+				for type in subject_tuple:
+					tmp_tuple = (type[0])
+					subject_list.append(tmp_tuple)
+					print subject_list
+				return subject_list
+
+			else:
+				return None
+
+		except DBException as e:
+			LOG.error('get subject error [%s]' % e)
+			raise CkException('get subject error')
 

@@ -48,6 +48,21 @@ $(function(){
 		}
 	});
 
+	$("a[name=type]").click(function(){
+		$("#search_type").attr("value","2");
+		var type = $(this).text();
+		$("#search_data").attr("value",type)
+		$("#search-form").submit();
+	});
+
+	$("a[name=subject]").click(function(){
+		$("#search_type").attr("value","3");
+		var subject = $(this).text();
+		$("#search_data").attr("value",subject)
+		$("#search-form").submit();
+	});
+
+/*
 	$("#single_choice").click(function(){
 			$("#search_type").attr("value","2");
 			$("#search_data").attr("value","1")
@@ -95,5 +110,5 @@ $(function(){
 			$("#search_data").attr("value","4")
 			$("#search-form").submit();
 	});
-
+*/
 });

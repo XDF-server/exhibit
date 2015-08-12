@@ -19,11 +19,9 @@
 						<button type="button" class="btn btn-default" aria-haspopup="true" aria-expanded="false">题型筛选</button>
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a id = "single_choice" href="#">选择题</a></li>
-								<li><a id = "gap_filling" href="#">填空题</a></li>
-								<li><a id = "true_or_false" href="#">判断题</a></li>
-							<!--    <li role="separator" class="divider"></li> -->
-								<li><a id = "short_answer" href="#">解答题</a></li>
+								{% for type in type_list %}
+								<li><a name = "type" href="#">{{ type }}</a></li>
+								{% end %}
 							</ul>
 					</div><!-- /btn-group -->
 					<!-- <input type="text" class="form-control" aria-label="...">-->
@@ -37,11 +35,9 @@
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-h
 		aspopup="true" aria-expanded="false"><span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a id = "math" href="#">数学</a></li>
-								<li><a id = "chinese" href="#">语文</a></li>
-								<li><a id = "english" href="#">英语</a></li>
-							<!--    <li role="separator" class="divider"></li> -->
-								<li><a id = "history" href="#">历史</a></li>
+								{% for subject in subject_list %}
+								<li><a name = "subject" href="#">{{ subject }}</a></li>
+								{% end %}
 							</ul>
 					</div><!-- /btn-group -->
 					<!-- <input type="text" class="form-control" aria-label="..."> -->
