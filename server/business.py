@@ -54,6 +54,26 @@ class Business(object):
 			return True
 
 		return False
+
+	@staticmethod 
+	def is_type(type_id):
+		
+		mysql = Mysql()
+		
+		mysql.connect_test()
+
+		query_sql = "select 1 from entity_question_type where type_id = %(type_id)d;"
+		
+		try:
+			if mysql.query(query_sql,type_id = int(type_id)) is not None:
+				return True
+			else:
+				return False
+
+		except DBException as e:
+			LOG.error('check type error [%s]' % e)
+			raise CkException('check type error')
+
 		
 	@staticmethod
 	def q_type_filter_num(type):

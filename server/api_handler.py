@@ -151,6 +151,7 @@ class UploadQuestion(web.RequestHandler):
 	def post(self):
 		
 		for i in range(1):
+
 			LOG.info('API IN[%s]' % (self.__class__.__name__))
 			LOG.info('PARAMETER IN[%s]' % self.request.arguments)
 			
@@ -210,6 +211,12 @@ class UploadQuestion(web.RequestHandler):
 							ret['message'] = 'invalid parameters'
 							LOG.error('ERR[seriess %s invalid]' % question_theme) 
 							break
+
+				if Business.is_type(question_type) is False:
+					ret['code'] = 1
+					ret['message'] = 'invalid parameters'
+					LOG.error('ERR[type is invalid]') 
+					break
 
 			except (ValueError,KeyError,TypeError):
 				ret['code'] = 1
