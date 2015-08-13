@@ -6,6 +6,7 @@ from mysql import Mysql
 from exception import DBException
 from business import Business
 import urllib
+import json
 
 class Index(web.RequestHandler):
 
@@ -69,7 +70,6 @@ class Search(web.RequestHandler):
 
 		#pid = self.get_secure_cookie("pid")
 
-		print "当前PID %s" % pid
 		'''
 		if pid is None:
 			#self.set_secure_cookie("pid","0",expires_days = None)
@@ -92,6 +92,8 @@ class Search(web.RequestHandler):
 		old_dict = self._old_question(qid)
 
 		combine_dict = dict(index_dict,**old_dict)
+
+		new_dict = self._new_question(qid)
 		
 		mark_list = Business.q_mark_list()
 		
@@ -114,8 +116,6 @@ class Search(web.RequestHandler):
 			page_dict["front"] = ""
 
 		combine_dict = dict(combine_dict,**page_dict)
-
-		print combine_dict
 
 		self.render("new_old_question_show.html",**combine_dict)
 
@@ -242,7 +242,8 @@ class Search(web.RequestHandler):
 	
 		return {'url_list' : url_list,'type' : question_type,'level' : question_level,'q_old_id' : data}
 
-	def _new_question(self,data):
+	@staticmethod
+	def _new_question(data):
 	
 		for i in range(1):
 		
@@ -251,15 +252,17 @@ class Search(web.RequestHandler):
 			try:
 				mysql.connect_test()
 				
-				search_sql = "select id,json from entity_question_new where id = %(question_id)d;"
-				mysql.query(search_sql,question_id = int(data))	
+				search_sql = "select id,json from entity_question_new where oldid = %(oldid)d;"
+				mysql.query(search_sql,oldid = int(data))	
 
 				question_set = mysql.fetch()
 
 			except DBException as e:
 				break
 
-		pass
+		newid = question_set[0]
+		question_json = question_set[1]
+
 
 class Page(web.RequestHandler):
 

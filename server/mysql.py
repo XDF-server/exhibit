@@ -119,6 +119,7 @@ class Mysql(object):
 			self.sql = sql % kwds
 			print self.sql
 			self.cur.execute(self.sql)	
+
 		except MySQLdb.Warning,w:
 			LOG.warn('Warning:%s' % str(w))
 			self.status = self.status_enum.QUERY_WAR
@@ -134,8 +135,13 @@ class Mysql(object):
 			self.status = self.status_enum.OTHER_ERR
 			LOG.error('format failed')
 			raise DBException('format failed')
-			
-		return 'success'
+	
+		print self.cur.rowcount
+		if self.cur.rowcount:		
+			return True
+		
+		else:
+			return False
 
 	def fetch(self):
 		

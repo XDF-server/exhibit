@@ -3,6 +3,7 @@
 from mysql import Mysql
 from gl import LOG
 from exception import DBException,CKException
+import collections
 
 class Business(object):
 
@@ -17,7 +18,7 @@ class Business(object):
 		query_sql = "select 1 from entity_topic where id = %(topic_id)d;" 
 		
 		try:
-			if mysql.query(query_sql,topic_id = int(topic_id)) is not None:
+			if mysql.query(query_sql,topic_id = int(topic_id)):
 				return True
 			else:
 				return False
@@ -36,7 +37,7 @@ class Business(object):
 		query_sql = "select 1 from entity_seriess where id = %(seriess_id)d;"
 		
 		try:
-			if mysql.query(query_sql,seriess_id = int(seriess_id)) is not None:
+			if mysql.query(query_sql,seriess_id = int(seriess_id)):
 				return True
 			else:
 				return False
@@ -62,10 +63,10 @@ class Business(object):
 		
 		mysql.connect_master()
 
-		query_sql = "select 1 from entity_question_type where type_id = %(type_id)d;"
+		query_sql = "select 1 from entity_question_type where type_id = %(type_id)d and enable = 1;"
 		
 		try:
-			if mysql.query(query_sql,type_id = int(type_id)) is not None:
+			if mysql.query(query_sql,type_id = int(type_id)):
 				return True
 			else:
 				return False
@@ -85,7 +86,7 @@ class Business(object):
 		query_sql = "select count(*) from entity_question_new where type = '%(type)s';"	
 
 		try:
-			if mysql.query(query_sql,type = type) is not None:
+			if mysql.query(query_sql,type = type):
 				return mysql.fetchall()[0][0]
 
 			else:
@@ -105,7 +106,7 @@ class Business(object):
 		query_sql = "select oldid,subject from entity_question_new where type = '%(type)s' limit %(start)d,%(num)d;"	
 
 		try:
-			if mysql.query(query_sql,type = type,start = start,num = num) is not None:
+			if mysql.query(query_sql,type = type,start = start,num = num):
 				return mysql.fetchall()
 
 			else:
@@ -125,7 +126,7 @@ class Business(object):
 		query_sql = "select count(*) from entity_question_new where subject = '%(type)s';"	
 
 		try:
-			if mysql.query(query_sql,type = type) is not None:
+			if mysql.query(query_sql,type = type):
 				return mysql.fetchall()[0][0]
 
 			else:
@@ -145,7 +146,7 @@ class Business(object):
 		query_sql = "select oldid,subject from entity_question_new where subject = '%(type)s' limit %(start)d,%(num)d;"	
 
 		try:
-			if mysql.query(query_sql,type = type,start = start,num = num) is not None:
+			if mysql.query(query_sql,type = type,start = start,num = num):
 				return mysql.fetchall()
 
 			else:
@@ -167,7 +168,7 @@ class Business(object):
 		mark_list = []
 
 		try:
-			if mysql.query(query_sql) is not None:
+			if mysql.query(query_sql):
 				mark_tuple =  mysql.fetchall()
 				
 				for mark in mark_tuple:
@@ -193,7 +194,7 @@ class Business(object):
 		query_sql = "insert into entity_question_mark (oldid,newid,mark,mark_time) values (%(oldid)d,%(newid)d,%(mark)d,now());"	
 
 		try:
-			if mysql.query(query_sql,oldid = oldid,newid = newid,mark = mark) is not None:
+			if mysql.query(query_sql,oldid = oldid,newid = newid,mark = mark):
 				return 'success'
 
 			else:
@@ -213,7 +214,7 @@ class Business(object):
 		query_sql = "insert into link_question_mark (name) values ('%(name)s');"	
 
 		try:
-			if mysql.query(query_sql,name = name) is not None:
+			if mysql.query(query_sql,name = name):
 				return mysql.get_last_id()
 
 			else:
@@ -235,7 +236,7 @@ class Business(object):
 		type_list = []
 
 		try:
-			if mysql.query(query_sql) is not None:
+			if mysql.query(query_sql):
 				type_tuple =  mysql.fetchall()
 				
 				for type in type_tuple:
@@ -263,7 +264,7 @@ class Business(object):
 		subject_list = []
 
 		try:
-			if mysql.query(query_sql) is not None:
+			if mysql.query(query_sql):
 				subject_tuple =  mysql.fetchall()
 				
 				for type in subject_tuple:
@@ -279,3 +280,40 @@ class Business(object):
 			LOG.error('get subject error [%s]' % e)
 			raise CkException('get subject error')
 
+'''
+	@staticmethod
+	def q_json_parse(question_json):
+
+		try:
+			encode_json = json.loads(question_json)
+
+		except (ValueError,KeyError,TypeError):
+
+			return None
+
+		body_dict = collections.OrderedDict()
+		options_dict = collections.OrderedDict()
+		answer_dict = collections.OrderedDict()
+		analysis_dict = collections.OrderedDict()
+
+		if 'body' in encode_json.keys():
+			question_body = encode_json['body']
+
+			for body_item_dict in question_body:
+				if 'text' == body_item_dict['type']:
+					
+					
+			
+			
+			
+
+
+		if 'options' in encode_json.keys():
+			question_options = encode_json['options']
+
+		if 'answer' in encode_json.keys():
+			question_answer = encode_json['answer']
+
+		if 'analysis' in encode_json.keys():
+			question_analysis = encode_json['analysis']			
+'''
