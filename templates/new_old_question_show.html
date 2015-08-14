@@ -2,9 +2,17 @@
 
 <link rel="stylesheet" href="{{ static_url("css/new_old_question_show.css") }}" >
 
-{% include "old_question_show.html" %}
+<div class = "container">
+	<div class = "row">
 
-<div id = "page" class = "row  text-center">
+		{% include "old_question_show.html" %}
+
+		{% include "new_question_show.html" %}
+
+	</div>
+</div>
+
+<div id = "page" class = "container row  text-center">
 	<nav>
 		<ul class="pager">
 			<li class = "{{ front_is_able }}"><a {{ front }} >上一页</a></li>
@@ -20,7 +28,7 @@
 	{% for id,mark in mark_list %}
 
 		{% if id%5 == 0 %}
-			</br>
+			<br />
 			<div class = "row">		
 		{% end %}
 
@@ -35,7 +43,7 @@
 	</div>
 </div>
 
-</br>
+<br />
 
 <div class="form-group form-inline text-center">
 	<input id="mark_data" type="text" class="form-control input-lg" style="width:850px" autof

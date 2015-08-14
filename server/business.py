@@ -3,7 +3,8 @@
 from mysql import Mysql
 from gl import LOG
 from exception import DBException,CKException
-import collections
+import json
+import re
 
 class Business(object):
 
@@ -211,7 +212,7 @@ class Business(object):
 
 		mysql.connect_master()
 
-		query_sql = "insert into link_question_mark (name) values ('%(name)s');"	
+		query_sql = "insert into link_question_mark (name,mark_time) values ('%(name)s',now());"	
 
 		try:
 			if mysql.query(query_sql,name = name):
@@ -280,7 +281,7 @@ class Business(object):
 			LOG.error('get subject error [%s]' % e)
 			raise CkException('get subject error')
 
-'''
+
 	@staticmethod
 	def q_json_parse(question_json):
 
@@ -291,29 +292,81 @@ class Business(object):
 
 			return None
 
-		body_dict = collections.OrderedDict()
-		options_dict = collections.OrderedDict()
-		answer_dict = collections.OrderedDict()
-		analysis_dict = collections.OrderedDict()
+		body_list = []
+		options_list = []
+		answer_list = []
+		analysis_list = []
+		question_dict = {}
 
 		if 'body' in encode_json.keys():
 			question_body = encode_json['body']
-
-			for body_item_dict in question_body:
-				if 'text' == body_item_dict['type']:
-					
-					
 			
-			
-			
-
-
+			body_list = Business.q_item_parse(question_body)
+			question_dict['body'] = body_list
+				
+		#	print "题干"
+		#	print body_list
+		
 		if 'options' in encode_json.keys():
 			question_options = encode_json['options']
+
+			for i,option in enumerate(question_options):
+				options_list.append(Business.q_item_parse(option))
+			
+			question_dict['options'] = options_list
+
+		#	print "题选项"
+		#	print options_list
 
 		if 'answer' in encode_json.keys():
 			question_answer = encode_json['answer']
 
+			answer_list = Business.q_item_parse(question_answer)
+
+			question_dict['answer'] = answer_list
+
+		#	print "题解答"
+		#	print answer_list
+
 		if 'analysis' in encode_json.keys():
 			question_analysis = encode_json['analysis']			
-'''
+
+			analysis_list = Business.q_item_parse(question_analysis)
+	
+			question_dict['analysis'] = analysis_list
+
+		#	print "题分析"
+		#	print analysis_list
+		return question_dict
+
+	@staticmethod
+	def q_item_parse(item_list):
+
+		tmp_list = []
+		
+		for item_dict in item_list:
+			if 'text' == item_dict['type']:
+				value = item_dict['value']
+				value = value.replace(r'<','^<$')			
+				value = value.replace(r'>','^>$')
+				value = value.replace(r'^','<cdata>')
+				value = value.replace(r'$','</cdata>')
+				item_html = "<span>%s</span>" % (value.encode('utf8'))
+				tmp_list.append(item_html)
+
+			if 'newline' == item_dict['type']:
+				item_html = "<br />" 
+				tmp_list.append(item_html)
+
+			if 'image' == item_dict['type']:
+				item_html = '<img src = "%s" />'  % (item_dict['value'].encode('utf8'))
+
+				tmp_list.append(item_html)
+
+			if 'option' == item_dict['type']:
+				item_html = "<span>%s.</span>" % (item_dict['value'].encode('utf8'))
+
+				tmp_list.append(item_html)
+
+		return tmp_list
+	

@@ -1,0 +1,41 @@
+
+<div id = "new_question_show" class = "col-lg-6"> 
+
+        </br>
+
+        <div id = "question_info" class = "row">
+                <div class = "alert alert-success col-lg-11">
+                        <p class = "text-muted">
+                                <span>{{ type  }}</span>
+                                <span class = "col-lg-offset-2">{{ subject  }}</span>
+                                <span class = "col-lg-offset-2">难度:{{ level }}</span>
+                        </p>
+                </div>
+        </div>
+
+        </br>
+
+        <div class = "row">
+		{% for item in new_question['body'] %}
+			{% raw item %}
+		{% end %}
+
+		{% for item in new_question['options'] %}
+			{% for option in item %}
+				{% raw option %}
+			{% end %}
+		{% end %}
+
+		{% for item in new_question['answer'] %}
+			{% raw item %}
+		{% end %}
+
+		{% for item in new_question['analysis'] %}
+			{% raw item %}
+		{% end %}
+        </div>
+
+        <div id = "q_new_id" style = "display:none">{{ q_new_id }}</div>
+
+</div>
+

@@ -92,7 +92,7 @@ class Search(web.RequestHandler):
 		old_dict = self._old_question(qid)
 
 		combine_dict = dict(index_dict,**old_dict)
-
+	
 		new_dict = self._new_question(qid)
 		
 		mark_list = Business.q_mark_list()
@@ -116,6 +116,8 @@ class Search(web.RequestHandler):
 			page_dict["front"] = ""
 
 		combine_dict = dict(combine_dict,**page_dict)
+
+		combine_dict = dict(combine_dict,**new_dict)
 
 		self.render("new_old_question_show.html",**combine_dict)
 
@@ -162,6 +164,8 @@ class Search(web.RequestHandler):
 
 		combine_dict = dict(index_dict,**old_dict)
 		
+		new_dict = self._new_question(qid)
+
 		mark_list = Business.q_mark_list()
 		
 		mark_dict = {'mark_list' : mark_list}
@@ -183,6 +187,8 @@ class Search(web.RequestHandler):
 			page_dict["front"] = ""
 
 		combine_dict = dict(combine_dict,**page_dict)
+
+		combine_dict = dict(combine_dict,**new_dict)
 
 		self.render("new_old_question_show.html",**combine_dict)
 
@@ -263,6 +269,11 @@ class Search(web.RequestHandler):
 		newid = question_set[0]
 		question_json = question_set[1]
 
+		new_question_dict = {}
+		new_question_dict['q_new_id'] = newid
+		new_question_dict['new_question'] = Business.q_json_parse(question_json)
+
+		return new_question_dict
 
 class Page(web.RequestHandler):
 
@@ -306,6 +317,8 @@ class Page(web.RequestHandler):
 
 		combine_dict = dict(combine_dict,**mark_dict)
 
+		new_dict = Search._new_question(qid)
+
 		front_url = r'href = /page?type=%s&data=%s&page=%d' % (filted_type,filted_data,pid-1)
 		next_url = r'href = /page?type=%s&data=%s&page=%d' % (filted_type,filted_data,pid+1)
 
@@ -323,6 +336,8 @@ class Page(web.RequestHandler):
 			page_dict["front"] = ""
 
                 combine_dict = dict(combine_dict,**page_dict)
+
+		combine_dict = dict(combine_dict,**new_dict)
 
                 self.render("new_old_question_show.html",**combine_dict)
 
@@ -342,8 +357,14 @@ class Mark(web.RequestHandler):
                 else:
 			oldid= int(''.join(self.request.arguments['oldid']))
 
+		if 'newid' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+                else:
+			newid= int(''.join(self.request.arguments['newid']))
+
 		try:
-			if Business.q_mark(oldid,0,mark) is not None:
+			if Business.q_mark(oldid,newid,mark) is not None:
 				self.write('ok')
 
 		except DBException as e:

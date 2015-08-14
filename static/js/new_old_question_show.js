@@ -4,16 +4,16 @@ $(function(){
 
 		var mark = $(this).attr("id")
 		var oldid = $("div#q_old_id").text()
+		var newid = $("div#q_new_id").text()
 		var this_btn = $(this)
 
 		$.ajax({
 			type : "post",
 			url : "/mark",
-			data:{"mark" : mark,"oldid" : oldid},
+			data:{"mark" : mark,"oldid" : oldid,"newid" : newid},
 			success:function(msg){
 				if (msg == 'ok'){
 
-					alert('haha')
     					this_btn.button('loading');
 				}
 				else{
