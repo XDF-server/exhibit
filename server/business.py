@@ -351,7 +351,14 @@ class Business(object):
 				value = value.replace(r'>','^>$')
 				value = value.replace(r'^','<cdata>')
 				value = value.replace(r'$','</cdata>')
-				item_html = "<span>%s</span>" % (value.encode('utf8'))
+
+				if 4 == item_dict['style']:
+					item_html = "<u>%s</u>" % (value.encode('utf8'))
+				elif 16 == item_dict['style']:
+					item_html =  '<span style="border-bottom:dotted 2px">%s</span>' % (value.encode('utf8'))
+				else:
+					item_html = "<span>%s</span>" % (value.encode('utf8'))
+				
 				tmp_list.append(item_html)
 
 			if 'newline' == item_dict['type']:

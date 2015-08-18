@@ -45,11 +45,22 @@ class Search(web.RequestHandler):
 
 	def _qid_search(self,data):
 
-		index_dict = {'title' : '新旧题对比展示','front_is_able' : '','next_is_able' : '',"front":"","next":""}
+		index_dict = {'title' : '新旧题对比展示','front_is_able' : 'disabled','next_is_able' : 'disabled',"front":"","next":""}
 
 		old_dict = self._old_question(data)
+		new_dict = self._new_question(data)
+		
+		if old_dict is None or new_dict is None:
+			self.write('搜无此题')
+			return
 
 		combine_dict = dict(index_dict,**old_dict)
+		combine_dict = dict(combine_dict,**new_dict)
+
+		mark_list = Business.q_mark_list()
+		mark_dict = {'mark_list' : mark_list}
+		combine_dict = dict(combine_dict,**mark_dict)
+
 		self.render("new_old_question_show.html",**combine_dict)
 
 	def _q_type_filter(self,data):
@@ -203,9 +214,10 @@ class Search(web.RequestHandler):
 				mysql.connect_test()
 				
 				search_sql = "select id,question_body,question_options,question_answer,question_analysis,question_type,difficulty from entity_question_old where id = %(question_id)d;"
-				mysql.query(search_sql,question_id = int(data))	
-
-				question_set = mysql.fetch()
+				if 0 == mysql.query(search_sql,question_id = int(data)):	
+					return None
+				else:
+					question_set = mysql.fetch()
 
 			except DBException as e:
 				break
@@ -258,20 +270,23 @@ class Search(web.RequestHandler):
 			try:
 				mysql.connect_test()
 				
-				search_sql = "select id,json from entity_question_new where oldid = %(oldid)d;"
-				mysql.query(search_sql,oldid = int(data))	
-
-				question_set = mysql.fetch()
+				search_sql = "select id,json,subject from entity_question_new where oldid = %(oldid)d;"
+				if 0 == mysql.query(search_sql,oldid = int(data)):	
+					return None
+				else:
+					question_set = mysql.fetch()
 
 			except DBException as e:
 				break
 
 		newid = question_set[0]
 		question_json = question_set[1]
+		question_subject = question_set[2]
 
 		new_question_dict = {}
 		new_question_dict['q_new_id'] = newid
 		new_question_dict['new_question'] = Business.q_json_parse(question_json)
+		new_question_dict['subject'] = question_subject
 
 		return new_question_dict
 
