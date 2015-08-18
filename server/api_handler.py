@@ -152,12 +152,14 @@ class UploadQuestion(web.RequestHandler):
 		
 		for i in range(1):
 
+			self.set_header("Access-Control-Allow-Origin", "*")
+
 			LOG.info('API IN[%s]' % (self.__class__.__name__))
 			LOG.info('PARAMETER IN[%s]' % self.request.arguments)
 			
 			ret = {'code':'','message':'','id':-9999}
 
-			essential_keys = set(['callback','json','html','topic','seriess','level','type','timestamp','secret'])
+			essential_keys = set(['json','html','topic','seriess','level','type','timestamp','secret'])
 
 			if Base.check_parameter(set(self.request.arguments.keys()),essential_keys):
 				ret['code'] = 1
@@ -165,7 +167,6 @@ class UploadQuestion(web.RequestHandler):
 				LOG.error('ERR[in parameter invalid]') 
 				break
 
-			callback = ''.join(self.request.arguments['callback'])
 			question_json = ''.join(self.request.arguments['json'])
 			question_html = ''.join(self.request.arguments['html'])
 			question_topic = ''.join(self.request.arguments['topic'])
@@ -330,7 +331,7 @@ class UploadQuestion(web.RequestHandler):
 
 		LOG.info('PARAMETER OUT[%s]' % ret)
 		LOG.info('API OUT[%s]' % (self.__class__.__name__))
-		self.write(callback + '(' + json.dumps(ret) + ')')
+		self.write(json.dumps(ret))
 
 class Uptoken(web.RequestHandler):
 
