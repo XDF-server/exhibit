@@ -159,7 +159,7 @@ class UploadQuestion(web.RequestHandler):
 			
 			ret = {'code':'','message':'','id':-9999}
 
-			essential_keys = set(['json','html','topic','seriess','level','type','timestamp','secret'])
+			essential_keys = set(['json','html','topic','seriess','level','type','subject','timestamp','secret'])
 
 			if Base.check_parameter(set(self.request.arguments.keys()),essential_keys):
 				ret['code'] = 1
@@ -173,6 +173,7 @@ class UploadQuestion(web.RequestHandler):
 			question_seriess = ''.join(self.request.arguments['seriess'])
 			question_level = ''.join(self.request.arguments['level'])
 			question_type = ''.join(self.request.arguments['type'])
+			question_subject = ''.join(self.request.arguments['subject'])
 			timestamp = ''.join(self.request.arguments['timestamp'])
 			secret = ''.join(self.request.arguments['secret'])
 
@@ -221,7 +222,7 @@ class UploadQuestion(web.RequestHandler):
 							break
 
 				type_name =  Business.is_type(question_type)
-				print type_name
+
 				if type_name is False:
 					ret['code'] = 1
 					ret['message'] = 'invalid parameters'
@@ -240,7 +241,7 @@ class UploadQuestion(web.RequestHandler):
 				LOG.error('ERR[mysql exception]') 
 				break
 
-			key = question_topic + question_seriess + question_level + question_type + timestamp
+			key = question_topic + question_seriess + question_level + question_type + subject + timestamp
 			secret_key = sha1(key).hexdigest()
 				
 			if secret == secret_key:
@@ -263,7 +264,7 @@ class UploadQuestion(web.RequestHandler):
 
 				db = Mysql()
 
-				question_sql = "insert into entity_question (difficulty,question_docx,html,upload_time,question_type,newFormat) values (%(level)d,'%(json)s','%(html)s',now(),'%(type)s',1);"
+				question_sql = "insert into entity_question (difficulty,question_docx,html,upload_time,question_type,subject_id,newFormat) values (%(level)d,'%(json)s','%(html)s',now(),'%(type)s',%(subject_id)d,1);"
 				
 				link_topic_sql = "insert into link_question_topic (question_id,topic_id) values (%(q_id)d,%(t_id)d);"
 				link_series_sql = "insert into link_question_series (question_id,series_id) values (%(q_id)d,%(s_id)d);"
@@ -271,7 +272,7 @@ class UploadQuestion(web.RequestHandler):
 				try:
 					db.connect_master()
 					db.start_event()
-					question_res = db.exec_event(question_sql,level = int(question_level),json = json_key,html = html_key,type = type_name)
+					question_res = db.exec_event(question_sql,level = int(question_level),json = json_key,html = html_key,type = type_name,subject_id = int(question_subject))
 					question_sql = db.get_last_sql()
 					question_id = db.get_last_id()
 					LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (question_sql,question_res,question_id))
@@ -357,6 +358,7 @@ class CreateGroup(web.RequestHandler):
 			timestamp = ''.join(self.request.arguments['timestamp'])
 			secret = ''.join(self.request.arguments['secret'])
 
+			
 			if Base.empty(group_name) or Base.empty(timestamp) or Base.empty(secret):
 				
 				ret['code'] = 1
@@ -372,7 +374,14 @@ class CreateGroup(web.RequestHandler):
 					
 					ret['code'] = 6
 					ret['message'] = 'key exsit'
+			
+				token = self.headers.get('teacher_id')
+			
+				if token is None:
+
 					break
+
+					
 				
 				db = Mysql()
 		

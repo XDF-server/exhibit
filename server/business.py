@@ -403,11 +403,28 @@ class Business(object):
 				value = value.replace(r'$','</cdata>')
 
 				if 4 == item_dict['style']:
-					item_html = "<u>%s</u>" % (value.encode('utf8'))
+					if 2 == item_dict['align']:
+						item_html =  '<u style="text-align:center;">%s</u>' % (value.encode('utf8'))
+					elif 3 == item_dict['align']:
+						item_html = '<u style="float:right">%s</u>' % (value.encode('utf8'))
+					else:
+						item_html = '<u>%s</u>' % (value.encode('utf8'))
+
 				elif 16 == item_dict['style']:
-					item_html =  '<span style="border-bottom:dotted 2px">%s</span>' % (value.encode('utf8'))
+					if 2 == item_dict['align']:
+						item_html =  '<span style="border-bottom:dotted 2px;text-align:center;">%s</span>' % (value.encode('utf8'))
+					elif 3 == item_dict['align']:
+						item_html = '<span style="border-bottom:dotted 2px;float:right">%s</span>' % (value.encode('utf8'))
+					else:
+						item_html = '<span style="border-bottom:dotted 2px;">%s</span>' % (value.encode('utf8'))
+
 				else:
-					item_html = "<span>%s</span>" % (value.encode('utf8'))
+					if 2 == item_dict['align']:
+						item_html =  '<span style="text-align:center;">%s</span>' % (value.encode('utf8'))
+					elif 3 == item_dict['align']:
+						item_html = '<span style="float:right;">%s</span>' % (value.encode('utf8'))
+					else:
+						item_html = '<span>%s</span>' % (value.encode('utf8'))
 				
 				tmp_list.append(item_html)
 
