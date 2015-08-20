@@ -118,7 +118,7 @@ class Business(object):
 		
 		try:
 			if mysql.query(query_sql,type_id = int(type_id)):
-				return mysql.fetch()[0][0]
+				return mysql.fetch()[0]
 			else:
 				return False
 
