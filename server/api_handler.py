@@ -221,7 +221,7 @@ class UploadQuestion(web.RequestHandler):
 							break
 
 				type_name =  Business.is_type(question_type)
-				print type_name
+
 				if type_name is False:
 					ret['code'] = 1
 					ret['message'] = 'invalid parameters'

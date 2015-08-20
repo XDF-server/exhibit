@@ -87,7 +87,8 @@ class Mysql(object):
 
 		if self.event_flag:
 
-			self.query(sql,**kwds)
+			res = self.query(sql,**kwds)
+			return res
 		else:
 			self.status = self.status_enum.EVENT_ERR
 			raise DBException('event failed')
@@ -117,7 +118,7 @@ class Mysql(object):
 		
 		try:
 			self.sql = sql % kwds
-			print self.sql
+			LOG.error('execute SQL[%s]' % (self.sql))
 			self.cur.execute(self.sql)	
 
 		except MySQLdb.Warning,w:
@@ -136,7 +137,6 @@ class Mysql(object):
 			LOG.error('format failed')
 			raise DBException('format failed')
 	
-		print self.cur.rowcount
 		if self.cur.rowcount:		
 			return True
 		
