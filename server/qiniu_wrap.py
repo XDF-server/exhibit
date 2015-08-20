@@ -115,7 +115,7 @@ class QiniuWrap(object):
                 return ret
         
         def del_file(self,bucket_name,key):
-                bucket_name = bucket_prex + bucket_name
+        	bucket_name = bucket_prex + bucket_name
                 ret, info = bucket.delete(bucket_name, key)
                 return ret
 

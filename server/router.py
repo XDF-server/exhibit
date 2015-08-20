@@ -27,6 +27,7 @@ if __name__ == "__main__":
 		(r'/transcode',Transcode),
 		(r'/transcode_res',TranscodeRes),
 		(r'/upload_question',UploadQuestion),
+		(r'/create_group',CreateGroup),
 		(r'/uptoken',Uptoken),
 		(r'/index',Index),
 		(r'/search',Search),

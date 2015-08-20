@@ -8,6 +8,56 @@ import re
 
 class Business(object):
 
+	@staticmethod
+	def get_group_list(okid):
+	
+		mysql = Mysql()
+
+		mysql.connect_master()
+		
+		query_sql = "select B.id,B.name,A.question_group,count(A.id) from entity_question A  left outer join entity_group B on (A.question_group=B.id) where upload_id=12837 and question_group <> 0 group by question_group;" 
+		
+		try:
+			if mysql.query(query_sql,group_name = group_name):
+
+				res = mysql.fetchall()
+
+				group_list = []
+
+				for line in res:
+					group_id = line[0]
+					group_name = line[1]
+					question_num = [2]
+					group_dict = {'id':group_id,'name':group_name,'num':question_num}
+					group_list.append(group_dict)
+			
+				return group_list
+			else:
+				return False
+
+		except DBException as e:
+			LOG.error('check topic error [%s]' % e)
+			raise CKException('check topic error')
+
+
+	@staticmethod
+	def group_exist(group_name):
+		
+		mysql = Mysql()
+
+		mysql.connect_master()
+		
+		query_sql = "select 1 from entity_group where name = '%(group_name)s';" 
+		
+		try:
+			if mysql.query(query_sql,group_name = group_name):
+				return True
+			else:
+				return False
+
+		except DBException as e:
+			LOG.error('check topic error [%s]' % e)
+			raise CKException('check topic error')
 
 	@staticmethod
 	def is_topic(topic_id):
@@ -64,11 +114,11 @@ class Business(object):
 		
 		mysql.connect_master()
 
-		query_sql = "select 1 from entity_question_type where type_id = %(type_id)d and enable = 1;"
+		query_sql = "select name from entity_question_type where type_id = %(type_id)d and enable = 1;"
 		
 		try:
 			if mysql.query(query_sql,type_id = int(type_id)):
-				return True
+				return mysql.fetch()[0][0]
 			else:
 				return False
 

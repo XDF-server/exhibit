@@ -187,7 +187,6 @@ class UploadQuestion(web.RequestHandler):
 				ret['message'] = 'invalid parameters'
 				LOG.error('ERR[timestamp empty]') 
 				break
-
 			
 			try:
 				question_json = urllib.unquote(question_json)
@@ -221,7 +220,9 @@ class UploadQuestion(web.RequestHandler):
 							LOG.error('ERR[seriess %s invalid]' % question_theme) 
 							break
 
-				if Business.is_type(question_type) is False:
+				type_name =  Business.is_type(question_type)
+				
+				if type_name is False:
 					ret['code'] = 1
 					ret['message'] = 'invalid parameters'
 					LOG.error('ERR[type is invalid]') 
@@ -270,7 +271,7 @@ class UploadQuestion(web.RequestHandler):
 				try:
 					db.connect_master()
 					db.start_event()
-					question_res = db.exec_event(question_sql,level = int(question_level),json = json_key,html = html_key,type = int(question_type))
+					question_res = db.exec_event(question_sql,level = int(question_level),json = json_key,html = html_key,type = type_name)
 					question_sql = db.get_last_sql()
 					question_id = db.get_last_id()
 					LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (question_sql,question_res,question_id))
@@ -324,6 +325,76 @@ class UploadQuestion(web.RequestHandler):
 				ret['id'] = question_id
 
 			else:
+				ret['code'] = 5 
+				ret['message'] = 'secure key error'
+				LOG.error('ERR[secure key error]') 
+				break
+
+		LOG.info('PARAMETER OUT[%s]' % ret)
+		LOG.info('API OUT[%s]' % (self.__class__.__name__))
+		self.write(json.dumps(ret))
+
+class CreateGroup(web.RequestHandler):
+
+	def post(self):
+		
+		for i in range(1):
+
+			LOG.info('API IN[%s]' % (self.__class__.__name__))
+                        LOG.info('PARAMETER IN[%s]' % self.request.arguments)
+
+                        ret = {'code':'','message':''}
+
+                        essential_keys = set(['name','timestamp','secret'])
+
+                        if Base.check_parameter(set(self.request.arguments.keys()),essential_keys):
+
+                                ret['code'] = 1
+                                ret['message'] = 'invalid parameter'
+                                break
+			
+			group_name = ''.join(self.request.arguments['name'])
+			timestamp = ''.join(self.request.arguments['timestamp'])
+			secret = ''.join(self.request.arguments['secret'])
+
+			if Base.empty(group_name) or Base.empty(timestamp) or Base.empty(secret):
+				
+				ret['code'] = 1
+				ret['message'] = 'invalid parameter'
+				break
+
+			key = group_name + timestamp;
+			secret_key = sha1(key).hexdigest()
+
+			if secret == secret_key:
+
+				if Business.group_exist(group_name):
+					
+					ret['code'] = 6
+					ret['message'] = 'key exsit'
+					break
+				
+				db = Mysql()
+		
+				group_sql = "insert into entity_group (name) values ('%(group_name)s');"
+
+				try:
+					db.connect_master()
+					group_res = db.query(group_sql,group_name = group_name)
+
+					group_sql = db.get_last_sql()
+					group_id = db.get_last_id()
+					LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (group_sql,group_res,group_id))
+				
+				except DBException as e:
+					ret['code'] = 3
+					ret['message'] = 'server error'
+					break
+
+				ret['code'] = 0
+				ret['message'] = 'success'
+
+			else:
 				ret['code'] = 4
 				ret['message'] = 'secure key error'
 				LOG.error('ERR[secure key error]') 
@@ -332,6 +403,38 @@ class UploadQuestion(web.RequestHandler):
 		LOG.info('PARAMETER OUT[%s]' % ret)
 		LOG.info('API OUT[%s]' % (self.__class__.__name__))
 		self.write(json.dumps(ret))
+
+'''
+class GetGroupList(web.RequestHandler):
+
+	def post(self):
+
+		for i in range(1):
+			
+			LOG.info('API IN[%s]' % (self.__class__.__name__))
+                        LOG.info('PARAMETER IN[%s]' % self.request.arguments)
+
+                        ret = {'code':'','message':'','group_list' : []}
+
+                        essential_keys = set(['timestamp','secret'])
+
+                        if Base.check_parameter(set(self.request.arguments.keys()),essential_keys):
+
+                                ret['code'] = 1
+                                ret['message'] = 'invalid parameter'
+                                break
+			
+			timestamp = ''.join(self.request.arguments['timestamp'])
+			secret = ''.join(self.request.arguments['secret'])
+
+			key = timestamp;
+			secret_key = sha1(key).hexdigest()
+
+			if secret == secret_key:
+				
+				#Business.get_group_list()
+		
+'''	
 
 class Uptoken(web.RequestHandler):
 
