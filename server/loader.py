@@ -4,28 +4,33 @@ from base import Base
 from base import Logger
 from base import Configer
 
-configer = Configer('../config.ini')
-
-log_info = configer.get_configer('LOG','info')
-log_path = configer.get_configer('LOG','path')
-log_format = '%(asctime)s - %(name)s - %(levelname)s - %(filename)s - %(funcName)s - %(message)s'
-
-logger = Logger(info = log_info,path = log_path,format = log_format)
+class Loader(object):
 	
-from mongo import Mongo
+	@staticmethod
+	def load():
 
-mongo = Mongo()
+		configer = Configer('../config.ini')
 
-mongo.connect('resource')
+		log_info = configer.get_configer('LOG','info')
+		log_path = configer.get_configer('LOG','path')
+		log_format = '%(asctime)s - %(name)s - %(levelname)s - %(filename)s - %(funcName)s - %(message)s'
 
-from mysql import Mysql
+		logger = Logger(info = log_info,path = log_path,format = log_format)
+		LOG = logger.get_logger()
+			
+		from mongo import Mongo
 
-mysql = Mysql()
+		mongo = Mongo()
 
-mysql.connect_master()
+		mongo.connect('resource')
 
-from qiniu_wrap import QiniuWrap
+		from mysql import Mysql
 
-qiniu = QiniuWrap
+		mysql = Mysql()
 
+		mysql.connect_master()
+
+		from qiniu_wrap import QiniuWrap
+
+		qiniu = QiniuWrap
 

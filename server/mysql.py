@@ -118,7 +118,7 @@ class Mysql(object):
 		
 		try:
 			self.sql = sql % kwds
-			LOG.error('execute SQL[%s]' % (self.sql))
+			LOG.info('execute SQL[%s]' % (self.sql))
 			self.cur.execute(self.sql)	
 
 		except MySQLdb.Warning,w:

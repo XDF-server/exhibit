@@ -1,4 +1,4 @@
-#e*-* coding:utf-8 *-*
+# *-* coding:utf-8 *-*
 
 import time
 import json
@@ -375,14 +375,18 @@ class CreateGroup(web.RequestHandler):
 					ret['code'] = 6
 					ret['message'] = 'key exsit'
 			
-				token = self.headers.get('teacher_id')
+				#token = self.headers.get('teacher_id')
 			
-				if token is None:
+				#if token is None:
 
-					break
-
-					
+				#	break
+				token = '7a9c0ee95ce14406866914839a1469e8'
+				user_info_url = "http://10.60.0.159:7001/data_subscription/getUserInfo"
+				post_data = {'tonken' : token}
+				user_info = Http.post(user_info_url,post_data)
 				
+				print user_info
+	
 				db = Mysql()
 		
 				group_sql = "insert into entity_group (name) values ('%(group_name)s');"
@@ -399,7 +403,7 @@ class CreateGroup(web.RequestHandler):
 					ret['code'] = 3
 					ret['message'] = 'server error'
 					break
-
+				
 				ret['code'] = 0
 				ret['message'] = 'success'
 
