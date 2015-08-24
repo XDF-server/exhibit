@@ -415,4 +415,35 @@ class AddMark(web.RequestHandler):
 		except DBException as e:
 			self.write('no')
 			return
-	
+
+class Verify(web.RequestHandler):
+
+	def post(self):
+
+		if 'oldid' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+                else:
+			oldid= int(''.join(self.request.arguments['oldid']))
+
+		if 'newid' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+		else:
+			newid= int(''.join(self.request.arguments['newid']))
+
+		if 'verify' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+		else:
+			verify= int(''.join(self.request.arguments['verify']))
+
+		try: 
+			if Business.verify(oldid,newid,verify):
+				self.write('ok')
+			else:
+				self.write('no')	
+
+		except DBException as e:
+			self.write('no')
+			return

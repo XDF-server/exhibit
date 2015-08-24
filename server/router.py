@@ -18,11 +18,11 @@ if __name__ == "__main__":
 	Loader.load()
 
 	from gl import LOG
-	from api_handler import *
+	#from api_handler import *
 	from exhibt_handler import *
 	from question import UploadQuestion
 	from transcode import Transcode,TranscodeRes
-	from group import CreateGroup
+	from group import CreateGroup,GetGroupList
 	
 	tornado.options.parse_command_line()
 
@@ -33,13 +33,14 @@ if __name__ == "__main__":
 		(r'/transcode_res',TranscodeRes),
 		(r'/upload_question',UploadQuestion),
 		(r'/create_group',CreateGroup),
+		(r'/get_group_list',GetGroupList),
 		#(r'/uptoken',Uptoken),
 		(r'/index',Index),
 		(r'/search',Search),
 		(r'/page',Page),
 		(r'/mark',Mark),
 		(r'/addmark',AddMark),
-
+		(r'/verify',Verify),
 	],
 	template_path = os.path.join(os.path.dirname(__file__),os.pardir,'templates'),
 	static_path = os.path.join(os.path.dirname(__file__),os.pardir,'static'),

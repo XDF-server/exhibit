@@ -9,25 +9,27 @@ import re
 class Business(object):
 
 	@staticmethod
-	def get_group_list(okid):
+	def get_group_list(system_id):
 	
 		mysql = Mysql()
 
 		mysql.connect_master()
 		
-		query_sql = "select B.id,B.name,A.question_group,count(A.id) from entity_question A  left outer join entity_group B on (A.question_group=B.id) where upload_id=12837 and question_group <> 0 group by question_group;" 
+		query_sql = "select B.id,B.name,count(A.id) from entity_question A  left outer join entity_group B on (A.question_group=B.id) where upload_id=%(system_id)d and question_group <> 0 group by question_group;" 
 		
 		try:
-			if mysql.query(query_sql,group_name = group_name):
+			if mysql.query(query_sql,system_id = system_id):
 
 				res = mysql.fetchall()
 
 				group_list = []
 
 				for line in res:
+					print line 
 					group_id = line[0]
 					group_name = line[1]
-					question_num = [2]
+					question_num = line[2]
+					print group_id,group_name,question_num
 					group_dict = {'id':group_id,'name':group_name,'num':question_num}
 					group_list.append(group_dict)
 			
@@ -41,7 +43,7 @@ class Business(object):
 
 
 	@staticmethod
-	def group_exist(group_name):
+	def group_name_exist(group_name):
 		
 		mysql = Mysql()
 
@@ -51,6 +53,25 @@ class Business(object):
 		
 		try:
 			if mysql.query(query_sql,group_name = group_name):
+				return True
+			else:
+				return False
+
+		except DBException as e:
+			LOG.error('check topic error [%s]' % e)
+			raise CKException('check topic error')
+
+	@staticmethod
+	def group_id_exist(group_id):
+		
+		mysql = Mysql()
+
+		mysql.connect_master()
+		
+		query_sql = "select 1 from entity_group where id = '%(group_id)d';" 
+		
+		try:
+			if mysql.query(query_sql,group_id = int(group_id)):
 				return True
 			else:
 				return False
@@ -274,6 +295,27 @@ class Business(object):
 		except DBException as e:
 			LOG.error('add mark error [%s]' % e)
 			raise CkException('add mark error')
+
+	@staticmethod
+	def verify(oldid,newid,verify):
+		
+		mysql = Mysql()
+
+		mysql.connect_master()
+
+		query_sql = "insert into entity_verify (oldid,newid,state) values (%(oldid)d,%(newid)d,%(verify)d);"	
+
+		try:
+			if mysql.query(query_sql,oldid = int(oldid),newid = int(newid),verify = int(verify)):
+				return mysql.get_last_id()
+
+			else:
+				return None
+
+		except DBException as e:
+			LOG.error('add mark error [%s]' % e)
+			raise CkException('add mark error')
+
 
 	@staticmethod
 	def q_type_list():

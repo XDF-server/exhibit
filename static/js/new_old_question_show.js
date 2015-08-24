@@ -43,5 +43,53 @@ $(function(){
 		});
 
 	});
-		
+	
+	$('button#pass').on('click',function() {
+		var this_btn = $(this);
+		var oldid = $("div#q_old_id").text()
+		var newid = $("div#q_new_id").text()
+
+		$.ajax({
+			type : "post",
+			url : "/verify",
+			data: {"oldid":oldid,"newid":newid,"verify":0},
+			success:function(msg){
+				if (msg == 'ok'){
+					this_btn.button("loading");
+					$("#no").button("loading");
+				}
+				else{
+					this_btn.button("reset");
+					$("#no").button("reset");
+
+				}
+			}
+		});
+
+	});
+
+	$('button#no').on('click',function() {
+		var this_btn = $(this);
+		var oldid = $("div#q_old_id").text()
+		var newid = $("div#q_new_id").text()
+
+		$.ajax({
+			type : "post",
+			url : "/verify",
+			data: {"oldid":oldid,"newid":newid,"verify":1},
+			success:function(msg){
+				if (msg == 'ok'){
+					this_btn.button("loading");
+					$("#pass").button("loading");
+				}
+				else{
+					this_btn.button("reset");
+					$("#no").button("reset");
+
+				}
+			}
+		});
+
+	});
+
 });
