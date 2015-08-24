@@ -30,7 +30,7 @@ class Business(object):
 					group_name = line[1]
 					question_num = line[2]
 					print group_id,group_name,question_num
-					group_dict = {'id':group_id,'name':group_name,'num':question_num}
+					group_dict = {'id':int(group_id),'name':group_name,'num':int(question_num)}
 					group_list.append(group_dict)
 			
 				return group_list
