@@ -20,7 +20,7 @@ if __name__ == "__main__":
 	from gl import LOG
 	#from api_handler import *
 	from exhibt_handler import *
-	from question import UploadQuestion
+	from question import UploadQuestion, get_exercises, update_exercises
 	from transcode import Transcode,TranscodeRes
 	from group import CreateGroup,GetGroupList
 	
@@ -41,6 +41,8 @@ if __name__ == "__main__":
 		(r'/mark',Mark),
 		(r'/addmark',AddMark),
 		(r'/verify',Verify),
+        (r'/get_exercises', get_exercises),
+        (r'/update_exercises', update_exercises),
 	],
 	template_path = os.path.join(os.path.dirname(__file__),os.pardir,'templates'),
 	static_path = os.path.join(os.path.dirname(__file__),os.pardir,'static'),

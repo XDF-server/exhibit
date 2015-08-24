@@ -51,7 +51,13 @@ class Mongo(object):
 	def get_collection(self):
 			
 		return self.collection
-		
+
+        def get_handle(self, index):
+                return MongoClient(eval(Configer().get_configer('MONGO', 'configs'))[index])
+
+        def remove(self, data):
+            return self.collection.remove(data)
+
 '''
 db = Mongo()
 db.connect('resource')

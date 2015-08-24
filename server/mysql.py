@@ -159,5 +159,7 @@ class Mysql(object):
 	def __def__(self):
 		self.cur.close()
 		self.conn.close()
-	
-	
+
+        def get_handle(self, index):
+                config = eval(Configer().get_configer('MYSQL', 'configs'))[index]
+                return MySQLdb.connect(host = config['host'], user = config['user'], passwd = config['passwd'], db = config['db'], port = config['port'], charset = config['charset'])
