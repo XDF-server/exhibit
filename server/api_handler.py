@@ -159,7 +159,7 @@ class UploadQuestion(web.RequestHandler):
 			
 			ret = {'code':'','message':'','id':-9999}
 
-			essential_keys = set(['json','html','topic','seriess','level','type','subject','timestamp','secret'])
+			essential_keys = set(['json','html','topic','seriess','level','type','subjectId','timestamp','secret'])
 
 			if Base.check_parameter(set(self.request.arguments.keys()),essential_keys):
 				ret['code'] = 1
@@ -173,7 +173,7 @@ class UploadQuestion(web.RequestHandler):
 			question_seriess = ''.join(self.request.arguments['seriess'])
 			question_level = ''.join(self.request.arguments['level'])
 			question_type = ''.join(self.request.arguments['type'])
-			question_subject = ''.join(self.request.arguments['subject'])
+			question_subject = ''.join(self.request.arguments['subjectId'])
 			timestamp = ''.join(self.request.arguments['timestamp'])
 			secret = ''.join(self.request.arguments['secret'])
 
@@ -241,7 +241,7 @@ class UploadQuestion(web.RequestHandler):
 				LOG.error('ERR[mysql exception]') 
 				break
 
-			key = question_topic + question_seriess + question_level + question_type + subject + timestamp
+			key = question_topic + question_seriess + question_level + question_type + timestamp
 			secret_key = sha1(key).hexdigest()
 				
 			if secret == secret_key:
