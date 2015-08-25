@@ -10,6 +10,15 @@
 	<img src="{{ static_url("image/index1.bmp") }}" height="100%" width="100%"/>  
 </div>
 
+<div>
+	{% if username is None %}
+	<a class="navbar-left" href="login">登陆</a>
+	<a class="navbar-left" href="register">注册</a>
+	{% else %}
+	<span class="navbar-left">{{username}}</span>
+	{% end %}
+</div>
+
 <form id="search-form" method="get" action="search" target="_blank">
 	<!-- 导航栏 -->
 	<div id = "navbar" class = "row navbar-fixed-bottom col-lg-offset-4">

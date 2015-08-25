@@ -3,6 +3,7 @@
 import logging
 import ConfigParser
 from design_model import singleton
+import hashlib
 
 class Base(object):
 
@@ -36,6 +37,13 @@ class Base(object):
 	def empty(s):
 
 		return True if 0 == len(s) else False
+
+	@staticmethod
+	def md5(s):
+
+		md = hashlib.md5()
+		md.update(s)
+		return md.hexdigest()
 
 @singleton
 class Configer(object):
