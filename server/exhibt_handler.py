@@ -8,16 +8,85 @@ from business import Business
 import urllib
 import json
 
+class Register(web.RequestHandler):
+
+	def get(self):
+
+		self.render("register.html",title = "注册")
+
+	def post(self):
+
+		if 'username' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+                else:
+			username = ''.join(self.request.arguments['username'])
+
+		if 'password' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+		else:
+			password = ''.join(self.request.arguments['password'])
+
+		try:
+			user_id = Business.add_user(username,password)
+
+			if user_id:
+				self.set_secure_cookie('uname',username,expires_days = None)
+				self.write('ok')
+			
+			else:
+				self.write('no')
+		except DBException:
+			
+			self.write('no')
+			return 
+
+class Login(web.RequestHandler):
+
+	def get(self):
+
+		self.render("login.html",title = '登陆')
+
+	def post(self):
+
+		if 'username' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+                else:
+			username = ''.join(self.request.arguments['username'])
+
+		if 'password' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+		else:
+			password = ''.join(self.request.arguments['password'])
+
+		try:
+			if Business.check_user(username,password):
+				self.set_secure_cookie('uname',username,expires_days = None)
+				self.write('ok')
+			
+			else:
+				self.write('no')
+		except DBException:
+			
+			self.write('no')
+			return 
+
+
 class Index(web.RequestHandler):
 
 	def get(self):
 
 		title = '首页'
-		
+	
+		username = self.get_secure_cookie('uname')
+
 		subject_list = Business.q_subject_list()
 		type_list = Business.q_type_list()
 
-		self.render('index.html',title = title,type_list = type_list,subject_list = subject_list)
+		self.render('index.html',title = title,username = username,type_list = type_list,subject_list = subject_list)
 
 
 class Search(web.RequestHandler):
@@ -45,7 +114,8 @@ class Search(web.RequestHandler):
 
 	def _qid_search(self,data):
 
-		index_dict = {'title' : '新旧题对比展示','front_is_able' : 'disabled','next_is_able' : 'disabled',"front":"","next":""}
+		username = self.get_secure_cookie('uname')
+		index_dict = {'username':username,'title' : '新旧题对比展示','front_is_able' : 'disabled','next_is_able' : 'disabled',"front":"","next":""}
 
 		old_dict = self._old_question(data)
 		new_dict = self._new_question(data)
@@ -98,7 +168,9 @@ class Search(web.RequestHandler):
 		qid = filted_set[0][0]
 		subject = filted_set[0][1]
 
-		index_dict = {'title' : '新旧题对比展示','subject' : subject}
+		username = self.get_secure_cookie('uname')
+
+		index_dict = {'username':username,'title' : '新旧题对比展示','subject' : subject}
 
 		old_dict = self._old_question(qid)
 
@@ -169,7 +241,9 @@ class Search(web.RequestHandler):
 		qid = filted_set[0][0]
 		subject = filted_set[0][1]
 
-		index_dict = {'title' : '新旧题对比展示','subject' : subject}
+		username = self.get_secure_cookie('uname')
+
+		index_dict = {'username':username,'title' : '新旧题对比展示','subject' : subject}
 
 		old_dict = self._old_question(qid)
 
@@ -316,12 +390,14 @@ class Page(web.RequestHandler):
                 qid = filted_set[0][0]
 		subject	= filted_set[0][1]
 
-                index_dict = {'title' : '新旧题对比展示','subject' : subject}
+		username = self.get_secure_cookie('uname')
+
+                index_dict = {'username':username,'title' : '新旧题对比展示','subject' : subject}
 
                 old_dict = Search._old_question(qid)
 
                 combine_dict = dict(index_dict,**old_dict)
-                 
+
 		num_access = {'2' : 'q_type_filter_num','3' : 'q_subject_filter_num'}[filted_type]
        
                 num = getattr(Business,num_access)(filted_data)
@@ -439,7 +515,9 @@ class Verify(web.RequestHandler):
 			verify= int(''.join(self.request.arguments['verify']))
 
 		try: 
-			if Business.verify(oldid,newid,verify):
+			username = self.get_secure_cookie('uname')
+
+			if Business.verify(username,oldid,newid,verify):
 				self.write('ok')
 			else:
 				self.write('no')	
@@ -447,3 +525,22 @@ class Verify(web.RequestHandler):
 		except DBException as e:
 			self.write('no')
 			return
+
+class CheckUser(web.RequestHandler):
+
+	def post(self):
+
+		if 'username' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+                else:
+			username = int(''.join(self.request.arguments['username']))
+
+		if 'password' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+		else:
+			password = int(''.join(self.request.arguments['password']))
+	
+		
+		

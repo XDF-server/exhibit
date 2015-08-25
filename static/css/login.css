@@ -1,0 +1,14 @@
+.login-wrapper
+{
+	width : 50%;
+	margin : auto;
+
+	margin-top:15%;
+	
+}
+
+#alert
+{
+	color:red;
+	text-align:center;
+}

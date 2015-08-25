@@ -1,10 +1,12 @@
 # *-* coding:utf-8 *-*
 
+from base import Base
 from mysql import Mysql
 from gl import LOG
 from exception import DBException,CKException
 import json
 import re
+import hashlib
 
 class Business(object):
 
@@ -297,16 +299,16 @@ class Business(object):
 			raise CkException('add mark error')
 
 	@staticmethod
-	def verify(oldid,newid,verify):
+	def verify(username,oldid,newid,verify):
 		
 		mysql = Mysql()
 
 		mysql.connect_master()
 
-		query_sql = "insert into entity_verify (oldid,newid,state) values (%(oldid)d,%(newid)d,%(verify)d);"	
+		query_sql = "insert into entity_verify (username,oldid,newid,state) values ('%(username)s',%(oldid)d,%(newid)d,%(verify)d);"	
 
 		try:
-			if mysql.query(query_sql,oldid = int(oldid),newid = int(newid),verify = int(verify)):
+			if mysql.query(query_sql,username = username,oldid = int(oldid),newid = int(newid),verify = int(verify)):
 				return mysql.get_last_id()
 
 			else:
@@ -484,5 +486,57 @@ class Business(object):
 
 				tmp_list.append(item_html)
 
+			if 'blank' == item_dict['type']:
+				item_html = "_____________" 
+
+				tmp_list.append(item_html)
+
 		return tmp_list
+
 	
+	@staticmethod
+	def add_user(username,password):
+
+		password = Base.md5(password)
+	
+		mysql = Mysql()
+
+		mysql.connect_master()
+
+		query_sql = "insert into verify_user (username,password) values ('%(username)s','%(password)s');"	
+
+		try:
+			if mysql.query(query_sql,username = username,password = password):
+				return mysql.get_last_id()
+
+			else:
+				return None
+
+		except DBException as e:
+			LOG.error('add user error [%s]' % e)
+			raise CkException('add user error')
+
+	@staticmethod
+	def check_user(username,password):
+		
+		password = Base.md5(password)
+	
+		mysql = Mysql()
+
+		mysql.connect_master()
+
+		query_sql = "select password from verify_user where username='%(username)s';"	
+
+		try:
+			if mysql.query(query_sql,username = username):
+				pwd = mysql.fetch()[0]
+				print pwd
+				if password == pwd:
+					return True
+			else:
+				return False
+
+		except DBException as e:
+			LOG.error('check user error [%s]' % e)
+			raise CkException('check user error')
+

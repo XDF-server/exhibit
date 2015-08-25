@@ -21,3 +21,18 @@ a:focus
 	text-align:right;
 	margin-right:6%;
 }
+
+.navbar-right
+{
+	margin:auto;
+	font-size:30px;
+	color:red;
+}
+
+.navbar-left
+{
+	float:left;
+	font-size:20px;
+	color:blue;
+	margin-left:30px;
+}
