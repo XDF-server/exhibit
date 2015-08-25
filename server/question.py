@@ -106,7 +106,7 @@ class UploadQuestion(web.RequestHandler):
 					LOG.error('ERR[type is invalid]') 
 					break
 
-				if 0 != question_group:
+				if '0' != question_group:
 					if Business.group_id_exist(question_group) is False:
 						ret['code'] = 8
 						ret['message'] = 'key not exsit'
