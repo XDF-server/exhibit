@@ -171,7 +171,7 @@ class UploadQuestion(web.RequestHandler):
 
                                 encode_body = json.loads(response.body)
 
-                                if 0 == encode_body['code'] and 2 == encode_body['code']:
+                                if 0 == encode_body['code'] or 2 == encode_body['code']:
                                         ret['code'] = 7
                                         ret['message'] = 'invalid token'
                                         LOG.error('ERR[token not exist]')
@@ -219,6 +219,7 @@ class UploadQuestion(web.RequestHandler):
 					except DBException as e:
 						ret['code'] = 3
 						ret['message'] = 'server error'
+						LOG.error('ERR[insert mysql error]') 
 						break
 
                                 else:
