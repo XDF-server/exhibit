@@ -41,14 +41,11 @@ if __name__ == "__main__":
 		(r'/mark',Mark),
 		(r'/addmark',AddMark),
 		(r'/verify',Verify),
-<<<<<<< HEAD
-        (r'/get_exercises', get_exercises),
-        (r'/update_exercises', update_exercises),
-=======
+        	(r'/get_exercises', get_exercises),
+        	(r'/update_exercises', update_exercises),
 		(r'/login',Login),
 		(r'/check_user',CheckUser),
 		(r'/register',Register),
->>>>>>> develop
 	],
 	template_path = os.path.join(os.path.dirname(__file__),os.pardir,'templates'),
 	static_path = os.path.join(os.path.dirname(__file__),os.pardir,'static'),
