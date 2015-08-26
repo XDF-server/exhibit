@@ -78,6 +78,13 @@ class UploadQuestion(web.RequestHandler):
 					LOG.error('ERR[topic and seriess empty]') 
 					break
 
+				if Base.empty(question_group):
+					ret['code'] = 1
+					ret['message'] = 'invalid parameters'
+					LOG.error('ERR[group empty]') 
+					break
+
+
 				if Base.empty(question_topic) is False:
 					topic_list = question_topic.split(',')
 
@@ -106,7 +113,7 @@ class UploadQuestion(web.RequestHandler):
 					LOG.error('ERR[type is invalid]') 
 					break
 
-				if '0' != question_group:
+				if 0 != int(question_group):
 					if Business.group_id_exist(question_group) is False:
 						ret['code'] = 8
 						ret['message'] = 'key not exsit'
@@ -150,8 +157,9 @@ class UploadQuestion(web.RequestHandler):
                                 remote_host = configer.get_configer('REMOTE','host')
                                 remote_port = configer.get_configer('REMOTE','port')
                                 remote_uri = configer.get_configer('REMOTE','uri')
-
-                                remote_url = "http://%s:%s/%s" % (remote_host,remote_port,remote_uri)
+				remote_timeout = configer.get_configer('REMOTE','timeout')
+                                
+				remote_url = "http://%s:%s/%s" % (remote_host,remote_port,remote_uri)
 
                                 token = self.get_cookie("teacher_id")
                                 LOG.info('TOKEN[%s]' % token)
@@ -165,68 +173,69 @@ class UploadQuestion(web.RequestHandler):
                                 post_data = {'token' : token}
 
                                 client = httpclient.AsyncHTTPClient()
-                                response = yield gen.Task(client.fetch,remote_url,method = 'POST',body = urllib.urlencode(post_data
+                                response = yield gen.Task(client.fetch,remote_url,request_timeout = int(remote_timeout),method = 'POST',body = urllib.urlencode(post_data
 ))
                                 #response = Http.post(remote_url,post_data)
 
-                                encode_body = json.loads(response.body)
+				if 200 == response.code:
+					encode_body = json.loads(response.body,encoding = 'utf-8')
 
-                                if 0 == encode_body['code'] or 2 == encode_body['code']:
-                                        ret['code'] = 7
-                                        ret['message'] = 'invalid token'
-                                        LOG.error('ERR[token not exist]')
-                                        break
-
-                                if 1 == encode_body['code']:
-                                        subject_id = encode_body['subject_id']
-                                        grade_id = encode_body['grade_id']
-                                        system_id = encode_body['system_id']
-                                        org_type = encode_body['org_type']
-
-					db = Mysql()
-
-					question_sql = "insert into entity_question (difficulty,question_docx,html,upload_time,question_type,subject_id,new_format,upload_id,upload_src,question_group,grade_id) values (%(level)d,'%(json)s','%(html)s',now(),'%(type)s',%(subject_id)d,1,%(upload_id)d,%(upload_src)d,%(question_group)d,%(grade_id)d);"
-					
-					link_topic_sql = "insert into link_question_topic (question_id,topic_id) values (%(q_id)d,%(t_id)d);"
-
-					link_series_sql = "insert into link_question_series (question_id,series_id) values (%(q_id)d,%(s_id)d);"
-
-					try:
-						db.connect_master()
-						db.start_event()
-
-						question_res = db.exec_event(question_sql,level = int(question_level),json = json_key,html = html_key,type = type_name,subject_id = int(subject_id),upload_id = int(system_id),upload_src = int(org_type),question_group = int(question_group),grade_id = int(grade_id))
-						question_sql = db.get_last_sql()
-						question_id = db.get_last_id()
-						LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (question_sql,question_res,question_id))
-				
-						if Base.empty(question_topic) is False:
-							topic_list = question_topic.split(',')
-							for question_theme in topic_list:
-								topic_res = db.exec_event(link_topic_sql,q_id = int(question_id),t_id = int(question_theme))
-								topic_sql = db.get_last_sql()
-								topic_id = db.get_last_id()
-								LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (link_topic_sql,topic_res,topic_id))
-						if Base.empty(question_seriess) is False:
-							seriess_list = question_seriess.split(',')
-
-							for question_special in seriess_list:
-								series_res = db.exec_event(link_series_sql,q_id = int(question_id),s_id = int(question_special))
-								series_sql = db.get_last_sql()
-								series_id = db.get_last_id()
-								LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (link_series_sql,series_res,series_id))
-
-					except DBException as e:
-						ret['code'] = 3
-						ret['message'] = 'server error'
-						LOG.error('ERR[insert mysql error]') 
+					if 0 == encode_body['code'] or 2 == encode_body['code']:
+						ret['code'] = 7
+						ret['message'] = 'invalid token'
+						LOG.error('ERR[token not exist]')
 						break
 
-                                else:
-                                        ret['code'] = 3
-                                        ret['message'] = 'server error'
-                                        LOG.error('ERROR[remote error]')
-                                        break
+					if 1 == encode_body['code']:
+						subject_id = encode_body['subject_id']
+						grade_id = encode_body['grade_id']
+						system_id = encode_body['system_id']
+						org_type = encode_body['org_type']
+
+						db = Mysql()
+
+						question_sql = "insert into entity_question (difficulty,question_docx,html,upload_time,question_type,subject_id,new_format,upload_id,upload_src,question_group,grade_id) values (%(level)d,'%(json)s','%(html)s',now(),'%(type)s',%(subject_id)d,1,%(upload_id)d,%(upload_src)d,%(question_group)d,%(grade_id)d);"
+						
+						link_topic_sql = "insert into link_question_topic (question_id,topic_id) values (%(q_id)d,%(t_id)d);"
+
+						link_series_sql = "insert into link_question_series (question_id,series_id) values (%(q_id)d,%(s_id)d);"
+
+						try:
+							db.connect_master()
+							db.start_event()
+
+							question_res = db.exec_event(question_sql,level = int(question_level),json = json_key,html = html_key,type = type_name,subject_id = int(subject_id),upload_id = int(system_id),upload_src = int(org_type),question_group = int(question_group),grade_id = int(grade_id))
+							question_sql = db.get_last_sql()
+							question_id = db.get_last_id()
+							LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (question_sql,question_res,question_id))
+					
+							if Base.empty(question_topic) is False:
+								topic_list = question_topic.split(',')
+								for question_theme in topic_list:
+									topic_res = db.exec_event(link_topic_sql,q_id = int(question_id),t_id = int(question_theme))
+									topic_sql = db.get_last_sql()
+									topic_id = db.get_last_id()
+									LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (link_topic_sql,topic_res,topic_id))
+							if Base.empty(question_seriess) is False:
+								seriess_list = question_seriess.split(',')
+
+								for question_special in seriess_list:
+									series_res = db.exec_event(link_series_sql,q_id = int(question_id),s_id = int(question_special))
+									series_sql = db.get_last_sql()
+									series_id = db.get_last_id()
+									LOG.info('SQL[%s] - RES[%s] - INS[%d]' % (link_series_sql,series_res,series_id))
+
+						except DBException as e:
+							ret['code'] = 3
+							ret['message'] = 'server error'
+							LOG.error('ERR[insert mysql error]') 
+							break
+
+				else:
+					ret['code'] = 3
+					ret['message'] = 'server error'
+					LOG.error('ERROR[remote error]')
+					break
 								
 				encode_json['question_id'] = question_id
 				encode_html['question_id'] = question_id
