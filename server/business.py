@@ -392,7 +392,7 @@ class Business(object):
 
 		if 'body' in encode_json.keys():
 			question_body = encode_json['body']
-			
+					
 			body_list = Business.q_item_parse(question_body)
 			question_dict['body'] = body_list
 				
@@ -443,8 +443,16 @@ class Business(object):
 				value = value.replace(r'>','^>$')
 				value = value.replace(r'^','<cdata>')
 				value = value.replace(r'$','</cdata>')
+				
+				if 2 == item_dict['style']:
+					if 2 == item_dict['align']:
+						item_html =  '<i style="text-align:center;">%s</i>' % (value.encode('utf8'))
+					elif 3 == item_dict['align']:
+						item_html = '<i style="float:right">%s</i>' % (value.encode('utf8'))
+					else:
+						item_html = '<i>%s</i>' % (value.encode('utf8'))
 
-				if 4 == item_dict['style']:
+				elif 4 == item_dict['style']:
 					if 2 == item_dict['align']:
 						item_html =  '<u style="text-align:center;">%s</u>' % (value.encode('utf8'))
 					elif 3 == item_dict['align']:

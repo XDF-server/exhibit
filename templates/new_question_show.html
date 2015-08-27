@@ -16,22 +16,38 @@
         </br>
 
         <div class = "row">
-		{% for item in new_question['body'] %}
-			{% raw item %}
-		{% end %}
-
-		{% for item in new_question['options'] %}
-			{% for option in item %}
-				{% raw option %}
+		{% if new_question['body'] %}
+			<div class="explain">题干</div>
+			<hr />
+			{% for item in new_question['body'] %}
+				{% raw item %}
 			{% end %}
 		{% end %}
 
-		{% for item in new_question['answer'] %}
-			{% raw item %}
+		{% if new_question['options'] %}
+			<div class="explain">选项</div>
+			<hr />
+			{% for item in new_question['options'] %}
+				{% for option in item %}
+					{% raw option %}
+				{% end %}
+			{% end %}
 		{% end %}
 
-		{% for item in new_question['analysis'] %}
-			{% raw item %}
+		{% if new_question['answer'] %}
+			<div class="explain">回答</div>
+			<hr />
+			{% for item in new_question['answer'] %}
+				{% raw item %}
+			{% end %}
+		{% end %}
+
+		{% if new_question['analysis'] %}
+			<div class="explain">分析</div>
+			<hr />
+			{% for item in new_question['analysis'] %}
+				{% raw item %}
+			{% end %}
 		{% end %}
         </div>
 

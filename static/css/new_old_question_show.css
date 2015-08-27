@@ -28,3 +28,13 @@ html,body
 	padding-top : 100px;
 }
 
+.explain
+{
+	color:blue;
+}
+
+hr
+{
+	margin-top:0px;
+	margin-bottom:0px;
+}
