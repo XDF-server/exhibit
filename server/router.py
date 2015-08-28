@@ -19,32 +19,34 @@ if __name__ == "__main__":
 
 	from gl import LOG
 	#from api_handler import *
-	from exhibt_handler import *
-	from question import UploadQuestion, get_exercises, update_exercises
-	from transcode import Transcode,TranscodeRes
-	from group import CreateGroup,GetGroupList
+	from exhibit_handler import *
+	#from question import UploadQuestion, get_exercises, update_exercises
+	#from transcode import Transcode,TranscodeRes
+	#from group import CreateGroup,GetGroupList
 	
 	tornado.options.parse_command_line()
 
 	settings = {"cookie_secret": "bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E="}
 
 	application = tornado.web.Application([
-		(r'/transcode',Transcode),
-		(r'/transcode_res',TranscodeRes),
-		(r'/upload_question',UploadQuestion),
-		(r'/create_group',CreateGroup),
-		(r'/get_group_list',GetGroupList),
+		
+		#(r'/transcode',Transcode),
+		#(r'/transcode_res',TranscodeRes),
+		#(r'/upload_question',UploadQuestion),
+		#(r'/create_group',CreateGroup),
+		#(r'/get_group_list',GetGroupList),
 		#(r'/uptoken',Uptoken),
+		#(r'/get_exercises', get_exercises),
+        	#(r'/update_exercises', update_exercises),
+
 		(r'/index',Index),
 		(r'/search',Search),
 		(r'/page',Page),
 		(r'/mark',Mark),
 		(r'/addmark',AddMark),
 		(r'/verify',Verify),
-        	(r'/get_exercises', get_exercises),
-        	(r'/update_exercises', update_exercises),
-		(r'/login',Login),
 		(r'/check_user',CheckUser),
+		(r'/login',Login),
 		(r'/register',Register),
 	],
 	template_path = os.path.join(os.path.dirname(__file__),os.pardir,'templates'),

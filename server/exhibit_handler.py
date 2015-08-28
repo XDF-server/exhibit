@@ -83,6 +83,8 @@ class Index(web.RequestHandler):
 	
 		username = self.get_secure_cookie('uname')
 
+		subject_list = ()
+		type_list = ()
 		subject_list = Business.q_subject_list()
 		type_list = Business.q_type_list()
 
@@ -130,6 +132,11 @@ class Search(web.RequestHandler):
 		mark_list = Business.q_mark_list()
 		mark_dict = {'mark_list' : mark_list}
 		combine_dict = dict(combine_dict,**mark_dict)
+
+		systematics_list = Business.get_systematics(data)
+		systematics_dict = {'systematics_list' : systematics_list}
+
+		combine_dict = dict(combine_dict,**systematics_dict)
 
 		self.render("new_old_question_show.html",**combine_dict)
 
@@ -201,6 +208,11 @@ class Search(web.RequestHandler):
 		combine_dict = dict(combine_dict,**page_dict)
 
 		combine_dict = dict(combine_dict,**new_dict)
+
+		systematics_list = Business.get_systematics(data)
+		systematics_dict = {'systematics_list' : systematics_list}
+
+		combine_dict = dict(combine_dict,**systematics_dict)
 
 		self.render("new_old_question_show.html",**combine_dict)
 
@@ -275,6 +287,11 @@ class Search(web.RequestHandler):
 
 		combine_dict = dict(combine_dict,**new_dict)
 
+		systematics_list = Business.get_systematics(data)
+		systematics_dict = {'systematics_list' : systematics_list}
+
+		combine_dict = dict(combine_dict,**systematics_dict)
+
 		self.render("new_old_question_show.html",**combine_dict)
 
 	@staticmethod
@@ -285,7 +302,7 @@ class Search(web.RequestHandler):
 			mysql = Mysql()
 			
 			try:
-				mysql.connect_test()
+				mysql.connect_master()
 				
 				search_sql = "select id,question_body,question_options,question_answer,question_analysis,question_type,difficulty from entity_question_old where id = %(question_id)d;"
 				if 0 == mysql.query(search_sql,question_id = int(data)):	
@@ -342,7 +359,7 @@ class Search(web.RequestHandler):
 			mysql = Mysql()
 			
 			try:
-				mysql.connect_test()
+				mysql.connect_master()
 				
 				search_sql = "select id,json,subject from entity_question_new where oldid = %(oldid)d;"
 				if 0 == mysql.query(search_sql,oldid = int(data)):	
@@ -429,6 +446,11 @@ class Page(web.RequestHandler):
                 combine_dict = dict(combine_dict,**page_dict)
 
 		combine_dict = dict(combine_dict,**new_dict)
+
+		systematics_list = Business.get_systematics(data)
+		systematics_dict = {'systematics_list' : systematics_list}
+
+		combine_dict = dict(combine_dict,**systematics_dict)
 
                 self.render("new_old_question_show.html",**combine_dict)
 

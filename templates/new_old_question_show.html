@@ -23,6 +23,24 @@
 	</nav>
 </div>
 
+<div id="systematics">
+
+	<div class = "row">
+
+	{% for module,unit,topic in systematics_list %}
+
+		<div class="row">
+			<span>{{ module }}/</span>
+			<span>{{ unit }}/</span>
+			<span>{{ topic }}</span>
+		</div>
+
+	{% end %}
+
+	</div>
+
+</div>
+
 <div id="verify" class="text-center">
 	<button id="pass" data-loading-text="通过" class="btn btn-success btn-lg">审核通过</button>
  	<button id="no" data-loading-text="不通过" class="btn btn-danger btn-lg col-lg-offset-1">审核不通过</button>

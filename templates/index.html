@@ -28,8 +28,10 @@
 						<button type="button" class="btn btn-default" aria-haspopup="true" aria-expanded="false">题型筛选</button>
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								{% for type in type_list %}
-								<li><a name = "type" href="#">{{ type }}</a></li>
+								{% if type_list %}
+									{% for type in type_list %}
+									<li><a name = "type" href="#">{{ type }}</a></li>
+									{% end %}
 								{% end %}
 							</ul>
 					</div><!-- /btn-group -->
@@ -44,8 +46,10 @@
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-h
 		aspopup="true" aria-expanded="false"><span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								{% for subject in subject_list %}
-								<li><a name = "subject" href="#">{{ subject }}</a></li>
+								{% if subject_list %}
+									{% for subject in subject_list %}
+									<li><a name = "subject" href="#">{{ subject }}</a></li>
+									{% end %}
 								{% end %}
 							</ul>
 					</div><!-- /btn-group -->

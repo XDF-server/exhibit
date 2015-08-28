@@ -11,6 +11,37 @@ import hashlib
 class Business(object):
 
 	@staticmethod
+	def get_systematics(question_id):
+		
+		mysql = Mysql()
+
+		mysql.connect_master()
+		
+		query_sql = "select D.name as module_name,C.name as unit_name,B.name as topic_name from (select topic_id from link_question_topic where question_id=%(question_id)d)A left outer join (select id,name,unit_id from entity_topic)B on (A.topic_id=B.id) left outer join (select id,name,module_id from entity_unit)C on (B.unit_id=C.id) left outer join (select id,name from entity_module)D on (C.module_id=D.id);" 
+		
+		try:
+			if mysql.query(query_sql,question_id = question_id):
+
+				res = mysql.fetchall()
+
+				systematics_list = []
+
+				for line in res:
+					module = line[0]
+					unit = line[1]
+					topic = line[2]					
+					systematics_dict = {'module':module,'unit':unit,'topic':topic}
+					systematics_list.append(systematics_dict)
+			
+				return systematics_list
+			else:
+				return False
+
+		except DBException as e:
+			LOG.error('get systematics error [%s]' % e)
+			raise CKException('get systematics error')
+
+	@staticmethod
 	def get_group_list(system_id):
 	
 		mysql = Mysql()
@@ -415,6 +446,9 @@ class Business(object):
 
 			answer_list = Business.q_item_parse(question_answer)
 
+			if 0 == answer_list.len():
+				answer_list= encode_json['answer']
+
 			question_dict['answer'] = answer_list
 
 		#	print "题解答"
@@ -435,7 +469,7 @@ class Business(object):
 	def q_item_parse(item_list):
 
 		tmp_list = []
-		
+
 		for item_dict in item_list:
 			if 'text' == item_dict['type']:
 				value = item_dict['value']
