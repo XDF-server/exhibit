@@ -18,11 +18,7 @@ if __name__ == "__main__":
 	Loader.load()
 
 	from gl import LOG
-	#from api_handler import *
 	from exhibit_handler import *
-	#from question import UploadQuestion, get_exercises, update_exercises
-	#from transcode import Transcode,TranscodeRes
-	#from group import CreateGroup,GetGroupList
 	
 	tornado.options.parse_command_line()
 
@@ -30,15 +26,6 @@ if __name__ == "__main__":
 
 	application = tornado.web.Application([
 		
-		#(r'/transcode',Transcode),
-		#(r'/transcode_res',TranscodeRes),
-		#(r'/upload_question',UploadQuestion),
-		#(r'/create_group',CreateGroup),
-		#(r'/get_group_list',GetGroupList),
-		#(r'/uptoken',Uptoken),
-		#(r'/get_exercises', get_exercises),
-        	#(r'/update_exercises', update_exercises),
-
 		(r'/index',Index),
 		(r'/search',Search),
 		(r'/page',Page),
