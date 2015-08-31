@@ -2,6 +2,7 @@
 
 from tornado import web
 from base import Base
+from gl import LOG
 from mysql import Mysql
 from exception import DBException
 from business import Business
@@ -209,7 +210,7 @@ class Search(web.RequestHandler):
 
 		combine_dict = dict(combine_dict,**new_dict)
 
-		systematics_list = Business.get_systematics(data)
+		systematics_list = Business.get_systematics(qid)
 		systematics_dict = {'systematics_list' : systematics_list}
 
 		combine_dict = dict(combine_dict,**systematics_dict)
@@ -287,7 +288,7 @@ class Search(web.RequestHandler):
 
 		combine_dict = dict(combine_dict,**new_dict)
 
-		systematics_list = Business.get_systematics(data)
+		systematics_list = Business.get_systematics(qid)
 		systematics_dict = {'systematics_list' : systematics_list}
 
 		combine_dict = dict(combine_dict,**systematics_dict)
@@ -447,9 +448,9 @@ class Page(web.RequestHandler):
 
 		combine_dict = dict(combine_dict,**new_dict)
 
-		systematics_list = Business.get_systematics(data)
+		systematics_list = Business.get_systematics(qid)
 		systematics_dict = {'systematics_list' : systematics_list}
-
+		LOG.info('haha%s' % systematics_dict)
 		combine_dict = dict(combine_dict,**systematics_dict)
 
                 self.render("new_old_question_show.html",**combine_dict)

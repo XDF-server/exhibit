@@ -25,18 +25,17 @@
 
 <div id="systematics">
 
-	<div class = "row">
+	<div class = "row text-center">
+	{% if systematics_list %}
+		{% for systematics in systematics_list %}
+			<div class="row breadcrumb">
+				<li>{{ systematics['module'] }}</li>
+				<li>{{ systematics['unit'] }}</li>
+				<li>{{ systematics['topic'] }}</li>
+			</div>
 
-	{% for module,unit,topic in systematics_list %}
-
-		<div class="row">
-			<span>{{ module }}/</span>
-			<span>{{ unit }}/</span>
-			<span>{{ topic }}</span>
-		</div>
-
+		{% end %}
 	{% end %}
-
 	</div>
 
 </div>
@@ -46,25 +45,22 @@
  	<button id="no" data-loading-text="不通过" class="btn btn-danger btn-lg col-lg-offset-1">审核不通过</button>
 </div>
 
+<hr />
+
 <div id = "mark" class = "text-center">
-	
 	<div class = "row">
-
-	{% for id,mark in mark_list %}
-
-		{% if id%5 == 0 %}
-			<br />
-			<div class = "row">		
+	{% if mark_list %}
+		{% for id,mark in mark_list %}
+			{% if id%5 == 0 %}
+				<div class = "row">		
+				<br />
+			{% end %}
+			<button type="button" name = "mark_btn" id="{{ id }}" data-loading-text="已标记" class="btn btn-info btn-lg col-lg-offset-1" autocomplete="off">{{ mark }}</button>
+			{% if id%5 == 5 %}
+				</div>		
+			{% end %}
 		{% end %}
-
-		<button type="button" name = "mark_btn" id="{{ id }}" data-loading-text="已标记" class="btn btn-info btn-lg col-lg-offset-1" autocomplete="off">{{ mark }}</button>
-
-		{% if id%5 == 5 %}
-			</div>		
-		{% end %}
-
 	{% end %}
-
 	</div>
 </div>
 

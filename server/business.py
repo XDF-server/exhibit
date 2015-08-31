@@ -20,10 +20,9 @@ class Business(object):
 		query_sql = "select D.name as module_name,C.name as unit_name,B.name as topic_name from (select topic_id from link_question_topic where question_id=%(question_id)d)A left outer join (select id,name,unit_id from entity_topic)B on (A.topic_id=B.id) left outer join (select id,name,module_id from entity_unit)C on (B.unit_id=C.id) left outer join (select id,name from entity_module)D on (C.module_id=D.id);" 
 		
 		try:
-			if mysql.query(query_sql,question_id = question_id):
+			if mysql.query(query_sql,question_id = int(question_id)):
 
 				res = mysql.fetchall()
-
 				systematics_list = []
 
 				for line in res:
@@ -32,7 +31,7 @@ class Business(object):
 					topic = line[2]					
 					systematics_dict = {'module':module,'unit':unit,'topic':topic}
 					systematics_list.append(systematics_dict)
-			
+
 				return systematics_list
 			else:
 				return False
@@ -444,9 +443,11 @@ class Business(object):
 		if 'answer' in encode_json.keys():
 			question_answer = encode_json['answer']
 
-			answer_list = Business.q_item_parse(question_answer)
-
-			if 0 == answer_list.len():
+			if 0 == len(options_list):
+				answer_list = Business.q_item_parse(question_answer)
+				if 0 == len(answer_list):
+					answer_list= encode_json['answer']
+			else:
 				answer_list= encode_json['answer']
 
 			question_dict['answer'] = answer_list
@@ -522,7 +523,10 @@ class Business(object):
 				tmp_list.append(item_html)
 
 			if 'option' == item_dict['type']:
-				item_html = "<span>%s.</span>" % (item_dict['value'].encode('utf8'))
+				if 'A' == item_dict['value']:
+					item_html = "<span>%s.</span>" % (item_dict['value'].encode('utf8'))
+				else:
+					item_html = "<br /><span>%s.</span>" % (item_dict['value'].encode('utf8'))
 
 				tmp_list.append(item_html)
 
