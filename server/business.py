@@ -478,7 +478,8 @@ class Business(object):
 				value = value.replace(r'>','^>$')
 				value = value.replace(r'^','<cdata>')
 				value = value.replace(r'$','</cdata>')
-				
+				value = value.replace(r' ','&nbsp')
+
 				if 2 == item_dict['style']:
 					if 2 == item_dict['align']:
 						item_html =  '<i style="text-align:center;">%s</i>' % (value.encode('utf8'))
