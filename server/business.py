@@ -405,7 +405,7 @@ class Business(object):
 
 
 	@staticmethod
-	def q_json_parse(question_json):
+	def q_json_parse(question_type,question_json):
 
 		try:
 			encode_json = json.loads(question_json)
@@ -419,13 +419,14 @@ class Business(object):
 		answer_list = []
 		analysis_list = []
 		question_dict = {}
+		blank_num = 0
 
 		if 'body' in encode_json.keys():
 			question_body = encode_json['body']
 					
-			body_list = Business.q_item_parse(question_body)
+			body_list,num = Business.q_item_parse(question_body)
 			question_dict['body'] = body_list
-				
+			blank_num = num
 		#	print "题干"
 		#	print body_list
 		
@@ -433,7 +434,8 @@ class Business(object):
 			question_options = encode_json['options']
 
 			for i,option in enumerate(question_options):
-				options_list.append(Business.q_item_parse(option))
+				opt_list,num = Business.q_item_parse(option)
+				options_list.append(opt_list)
 			
 			question_dict['options'] = options_list
 
@@ -443,12 +445,21 @@ class Business(object):
 		if 'answer' in encode_json.keys():
 			question_answer = encode_json['answer']
 
-			if 0 == len(options_list):
-				answer_list = Business.q_item_parse(question_answer)
+			if '判断题'.decode('utf-8') == question_type:
+				if 0 == encode_json['answer']:
+					answer_list = u'错'
+
+				if 1 == encode_json['answer']:
+					answer_list = u'对'
+
+			elif 0 == len(options_list):
+				answer_list,num = Business.q_item_parse(question_answer)
 				if 0 == len(answer_list):
 					answer_list= encode_json['answer']
 			else:
 				answer_list= encode_json['answer']
+
+			LOG.info(answer_list)
 
 			question_dict['answer'] = answer_list
 
@@ -458,18 +469,19 @@ class Business(object):
 		if 'analysis' in encode_json.keys():
 			question_analysis = encode_json['analysis']			
 
-			analysis_list = Business.q_item_parse(question_analysis)
+			analysis_list,num = Business.q_item_parse(question_analysis)
 	
 			question_dict['analysis'] = analysis_list
 
 		#	print "题分析"
 		#	print analysis_list
-		return question_dict
+		return question_dict,blank_num
 
 	@staticmethod
 	def q_item_parse(item_list):
 
 		tmp_list = []
+		blank_num = 0
 
 		for item_dict in item_list:
 			if 'text' == item_dict['type']:
@@ -524,20 +536,16 @@ class Business(object):
 				tmp_list.append(item_html)
 
 			if 'option' == item_dict['type']:
-				if 'A' == item_dict['value']:
-					item_html = "<span>%s.</span>" % (item_dict['value'].encode('utf8'))
-				else:
-					item_html = "<br /><span>%s.</span>" % (item_dict['value'].encode('utf8'))
+				item_html = "<span>%s.</span>" % (item_dict['value'].encode('utf8'))
 
 				tmp_list.append(item_html)
 
 			if 'blank' == item_dict['type']:
 				item_html = "_____________" 
-
+				blank_num += 1
 				tmp_list.append(item_html)
 
-		return tmp_list
-
+		return tmp_list,blank_num
 	
 	@staticmethod
 	def add_user(username,password):
@@ -575,7 +583,6 @@ class Business(object):
 		try:
 			if mysql.query(query_sql,username = username):
 				pwd = mysql.fetch()[0]
-				print pwd
 				if password == pwd:
 					return True
 			else:
@@ -584,4 +591,43 @@ class Business(object):
 		except DBException as e:
 			LOG.error('check user error [%s]' % e)
 			raise CkException('check user error')
+
+	@staticmethod
+	def get_json_by_id(oldid):
+		
+		mysql = Mysql()
+
+		mysql.connect_master()
+
+		query_sql = "select json from entity_question_new where oldid=%(oldid)d;"	
+
+		try:
+			if mysql.query(query_sql,oldid = int(oldid)):
+				json = mysql.fetch()[0]
+				return json
+			else:
+				return False
+
+		except DBException as e:
+			LOG.error('get json error [%s]' % e)
+			raise CkException('get json error')
+
+	@staticmethod
+	def update_json_by_id(oldid,json):
+		
+		mysql = Mysql()
+
+		mysql.connect_master()
+
+		query_sql = "update entity_question_new set json='%(question_json)s' where oldid=%(oldid)d;"	
+
+		try:
+			if mysql.query(query_sql,oldid = int(oldid),question_json = json):
+				return True
+			else:
+				return False
+
+		except DBException as e:
+			LOG.error('update json error [%s]' % e)
+			raise CkException('update json error')
 

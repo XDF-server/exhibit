@@ -362,7 +362,7 @@ class Search(web.RequestHandler):
 			try:
 				mysql.connect_master()
 				
-				search_sql = "select id,json,subject from entity_question_new where oldid = %(oldid)d;"
+				search_sql = "select id,json,subject,type from entity_question_new where oldid = %(oldid)d;"
 				if 0 == mysql.query(search_sql,oldid = int(data)):	
 					return None
 				else:
@@ -374,10 +374,11 @@ class Search(web.RequestHandler):
 		newid = question_set[0]
 		question_json = question_set[1]
 		question_subject = question_set[2]
+		question_type = question_set[3]
 
 		new_question_dict = {}
 		new_question_dict['q_new_id'] = newid
-		new_question_dict['new_question'] = Business.q_json_parse(question_json)
+		new_question_dict['new_question'],new_question_dict['blank_num'] = Business.q_json_parse(question_type,question_json)
 		new_question_dict['subject'] = question_subject
 
 		return new_question_dict
@@ -566,4 +567,58 @@ class CheckUser(web.RequestHandler):
 			password = int(''.join(self.request.arguments['password']))
 	
 		
+class SubmitAnswer(web.RequestHandler):
+
+	def post(self):
+
+		if 'oldid' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+                else:
+			oldid = int(''.join(self.request.arguments['oldid']))
+
+		if 'new_answer' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+		else:
+			new_answer = ''.join(self.request.arguments['new_answer'])
 		
+		try: 
+			question_json = Business.get_json_by_id(oldid)
+			
+			if question_json is False:
+				self.write('no')
+				return 
+			
+			encode_json = json.loads(question_json)
+			
+		except DBException as e:
+			self.write('no')
+			return
+
+		new_answer_dict = {}
+		new_answer_list = new_answer.split('|')
+
+		for new_answer in new_answer_list:
+			if Base.empty(new_answer) is False:
+				index_answer = new_answer.split(',')
+				answer_index = index_answer[0]
+				answer_content = index_answer[1]
+				new_answer_dict[answer_index] = answer_content
+
+		for index,answer in new_answer_dict.items():
+			for item in encode_json['answer']:
+				if 'text' == item['type']:
+					item['value'] = answer.decode('utf8')
+					item['index'] = index
+
+		new_question_json = json.dumps(encode_json,ensure_ascii = False)
+
+		try: 
+			if Business.update_json_by_id(oldid,new_question_json):
+				self.write('ok')
+				return
+			
+		except DBException as e:
+			self.write('no')
+			return
