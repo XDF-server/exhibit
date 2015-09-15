@@ -412,7 +412,7 @@ class Business(object):
 
 		except (ValueError,KeyError,TypeError):
 
-			return None
+			return None,0
 
 		body_list = []
 		options_list = []

@@ -16,47 +16,52 @@
         <br />
 
         <div class = "row">
-		{% if new_question['body'] %}
-			<div class="explain">题干</div>
-			<hr />
-			{% for item in new_question['body'] %}
-				{% raw item %}
-			{% end %}
-		{% end %}
+		{% if new_question %}
 
-		{% if new_question['options'] %}
-			<div class="explain">选项</div>
-			<hr />
-			{% for item in new_question['options'] %}
-				{% for option in item %}
-					{% raw option %}
+			{% if new_question['body'] %}
+				<div class="explain">题干</div>
+				<hr />
+				{% for item in new_question['body'] %}
+					{% raw item %}
 				{% end %}
 			{% end %}
-		{% end %}
 
-		{% if new_question['answer'] %}
-			<div class="explain">回答</div>
-			<hr />
-			{% for i,item in enumerate(new_question['answer']) %}
-				<div id="index{{ i+1 }}" name="old_answer" style="float:left;">{% raw item %}</div>
-			{% end %}
-			<br />
-			{% for i in range(blank_num) %}
-				<input id="{{ i+1 }}" name="new_answer" class="form-control input-sm " style="width:200px;display:inline;" type="text" autocomplete="off" placeholder="请填写答案{{ i+1 }}" /> 
-			{% end %}
-			<br />
-			{% if blank_num %}
-				<button id="submit_answer" type="button" data-loading-text="已提交" class="btn btn-success btn-sm">提交答案</button>
+			{% if new_question['options'] %}
+				<div class="explain">选项</div>
+				<hr />
+				{% for item in new_question['options'] %}
+					{% for option in item %}
+						{% raw option %}
+					{% end %}
+				{% end %}
 			{% end %}
 
-		{% end %}
-	
-		{% if new_question['analysis'] %}
-			<div class="explain">分析</div>
-			<hr />
-			{% for item in new_question['analysis'] %}
-				{% raw item %}
+			{% if new_question['answer'] %}
+				<div class="explain">回答</div>
+				<hr />
+				{% for i,item in enumerate(new_question['answer']) %}
+					<div id="index{{ i+1 }}" name="old_answer" style="float:left;">{% raw item %}</div>
+				{% end %}
+				<br />
+				{% for i in range(blank_num) %}
+					<input id="{{ i+1 }}" name="new_answer" class="form-control input-sm " style="width:200px;display:inline;" type="text" autocomplete="off" placeholder="请填写答案{{ i+1 }}" /> 
+				{% end %}
+				<br />
+				{% if blank_num %}
+					<button id="submit_answer" type="button" data-loading-text="已提交" class="btn btn-success btn-sm">提交答案</button>
+				{% end %}
+
 			{% end %}
+		
+			{% if new_question['analysis'] %}
+				<div class="explain">分析</div>
+				<hr />
+				{% for item in new_question['analysis'] %}
+					{% raw item %}
+				{% end %}
+			{% end %}
+		{% else %}
+			json格式错误，暂时无法解析
 		{% end %}
         </div>
 
