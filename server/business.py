@@ -8,6 +8,9 @@ import json
 import re
 import hashlib
 
+question_dict_final = {}
+question_dict_final['questions'] = []
+
 class Business(object):
 
 	@staticmethod
@@ -265,7 +268,7 @@ class Business(object):
 		
 		mysql.connect_master()
 
-		query_sql = "select id,name from link_question_mark;"	
+		query_sql = "select id,name from link_question_mark where enable=1;"	
 
 		mark_list = []
 
@@ -276,7 +279,6 @@ class Business(object):
 				for mark in mark_tuple:
 					tmp_tuple = (mark[0],mark[1])
 					mark_list.append(tmp_tuple)
-					print mark_list
 				return mark_list
 
 			else:
@@ -365,7 +367,6 @@ class Business(object):
 				for type in type_tuple:
 					tmp_tuple = (type[0])
 					type_list.append(tmp_tuple)
-					print type_list
 				return type_list
 
 			else:
@@ -393,7 +394,6 @@ class Business(object):
 				for type in subject_tuple:
 					tmp_tuple = (type[0])
 					subject_list.append(tmp_tuple)
-					print subject_list
 				return subject_list
 
 			else:
@@ -403,12 +403,19 @@ class Business(object):
 			LOG.error('get subject error [%s]' % e)
 			raise CkException('get subject error')
 
-
+	
 	@staticmethod
-	def q_json_parse(question_type,question_json):
+	def q_json_parse(question_type,question_json,sub = 0):
+	
+		global question_dict_final
+		
+		if 0 == sub:
+			question_dict_final.clear()
 
 		try:
 			encode_json = json.loads(question_json)
+			#print encode_json
+			#print "|||"
 
 		except (ValueError,KeyError,TypeError):
 
@@ -418,7 +425,12 @@ class Business(object):
 		options_list = []
 		answer_list = []
 		analysis_list = []
+		material_list = []
+		sub_list = []
+		subs_list = []
+
 		question_dict = {}
+		question_dict['questions'] = []
 		blank_num = 0
 
 		if 'body' in encode_json.keys():
@@ -436,7 +448,7 @@ class Business(object):
 			for i,option in enumerate(question_options):
 				opt_list,num = Business.q_item_parse(option)
 				options_list.append(opt_list)
-			
+
 			question_dict['options'] = options_list
 
 		#	print "题选项"
@@ -459,8 +471,6 @@ class Business(object):
 			else:
 				answer_list= encode_json['answer']
 
-			LOG.info(answer_list)
-
 			question_dict['answer'] = answer_list
 
 		#	print "题解答"
@@ -470,12 +480,46 @@ class Business(object):
 			question_analysis = encode_json['analysis']			
 
 			analysis_list,num = Business.q_item_parse(question_analysis)
-	
+
 			question_dict['analysis'] = analysis_list
 
+		if 'material' in encode_json.keys():
+			question_material = encode_json['material']			
+
+			material_list,num = Business.q_item_parse(question_material)
+	
+			question_dict['material'] = material_list
+
+		if 'translation' in encode_json.keys():
+			question_translation = encode_json['translation']			
+
+			translation_list,num = Business.q_item_parse(question_translation)
+	
+			question_dict['translation'] = translation_list
+
+		if 0 == sub:
+			question_dict_final = question_dict
+
+		if 'questions' in encode_json.keys():
+			questions = encode_json['questions']			
+
+			for sub_question in questions:
+				sub_type = sub_question['topic_type']['name']
+				#print sub_question
+				#print '----'
+				sub_question_str = json.dumps(sub_question)
+				sub_dict = {}
+				sub_dict['sub_question'],sub_num = Business.q_json_parse(sub_type,sub_question_str,1)
+				sub_dict['sub_num'] = sub_num
+				#print sub_dict['sub_question']	
+				question_dict_final['questions'].append(sub_dict)
+		
 		#	print "题分析"
 		#	print analysis_list
-		return question_dict,blank_num
+		if 0 == sub:
+			return question_dict_final,blank_num
+		else:
+			return question_dict,blank_num
 
 	@staticmethod
 	def q_item_parse(item_list):
@@ -515,6 +559,13 @@ class Business(object):
 						item_html = '<span style="border-bottom:dotted 2px;float:right">%s</span>' % (value.encode('utf8'))
 					else:
 						item_html = '<span style="border-bottom:dotted 2px;">%s</span>' % (value.encode('utf8'))
+				elif 64 == item_dict['style']:
+					if 2 == item_dict['align']:
+						item_html =  '<span style="border-bottom:dotted 2px;text-align:center;text-indent:2em;">%s</span>' % (value.encode('utf8'))
+					elif 3 == item_dict['align']:
+						item_html = '<span style="border-bottom:dotted 2px;float:right;text-indent:2em;">%s</span>' % (value.encode('utf8'))
+					else:
+						item_html = '<span style="border-bottom:dotted 2px;text-indent:2em;">%s</span>' % (value.encode('utf8'))
 
 				else:
 					if 2 == item_dict['align']:

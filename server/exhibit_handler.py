@@ -5,7 +5,7 @@ from base import Base
 from gl import LOG
 from mysql import Mysql
 from exception import DBException
-from business import Business
+from business import Business,question_dict_final
 import urllib
 import json
 
@@ -235,7 +235,7 @@ class Search(web.RequestHandler):
 
 		#pid = self.get_secure_cookie("pid")
 
-		print "当前PID %s" % pid
+		#print "当前PID %s" % pid
 		'''
 		if pid is None:
 			#self.set_secure_cookie("pid","0",expires_days = None)
@@ -311,6 +311,13 @@ class Search(web.RequestHandler):
 				else:
 					question_set = mysql.fetch()
 
+				children_sql = "select id,question_body,question_options,question_answer,question_analysis,question_type,difficulty from entity_question_old where parent_question_id = %(parent_id)d order by id;"
+
+				if 0 == mysql.query(children_sql,parent_id = int(data)):	
+					children_set = None
+				else:
+					children_set = mysql.fetchall()
+
 			except DBException as e:
 				break
 			
@@ -349,7 +356,15 @@ class Search(web.RequestHandler):
 			analysis_bucket = question_analysis[0:2]
 			analysis_url = domain % (analysis_bucket,question_analysis)
 			url_list.append(analysis_url)
-	
+
+		if children_set is not None:
+			for children in children_set:
+				for i in range(1,5):
+					if children[i] is not None:
+						children_bucket = children[i][0:2]
+						children_url = domain % (children_bucket,children[i])
+						url_list.append(children_url)
+
 		return {'url_list' : url_list,'type' : question_type,'level' : question_level,'q_old_id' : data}
 
 	@staticmethod
@@ -380,7 +395,7 @@ class Search(web.RequestHandler):
 		new_question_dict['q_new_id'] = newid
 		new_question_dict['new_question'],new_question_dict['blank_num'] = Business.q_json_parse(question_type,question_json)
 		new_question_dict['subject'] = question_subject
-
+		#print new_question_dict
 		return new_question_dict
 
 class Page(web.RequestHandler):
@@ -599,21 +614,126 @@ class SubmitAnswer(web.RequestHandler):
 		new_answer_dict = {}
 		new_answer_list = new_answer.split('|')
 
-		for new_answer in new_answer_list:
+		current_index = 1
+
+		old_blank_num = len(new_answer_list) - 1
+
+		#填补答案索引
+		for index,item in enumerate(encode_json['answer']):
+			if 'image' == item['type']:
+				tmp_dict = {'index':current_index,'group':item}
+				encode_json['answer'][index] = tmp_dict
+				current_index += 1
+
+			if 'text' == item['type']:
+				tmp_dict = {'index':current_index,'group':item}
+				encode_json['answer'][index] = tmp_dict
+				current_index += 1
+
+		for i in range(current_index,old_blank_num+1):
+			encode_json['answer'].append({"index":i,"group":{}})
+
+		#print encode_json['answer']
+
+		#计算联合blank，并更新json
+		new_blank_num = 0 
+		start_point = 0
+		union = 1
+		union_flag = False
+		empty_flag = False
+		cur_index = 1
+		union_dict = {}
+
+		for no,new_answer in enumerate(new_answer_list):
 			if Base.empty(new_answer) is False:
 				index_answer = new_answer.split(',')
 				answer_index = index_answer[0]
 				answer_content = index_answer[1]
-				new_answer_dict[answer_index] = answer_content
 
+				if Base.empty(answer_content):
+					union += 1
+					empty_flag = True
+					union_flag = False
+					print '空'
+
+				else:
+					new_blank_num += 1
+					union_flag = True
+					empty_flag = False
+					new_answer_dict[cur_index] = answer_content			
+					cur_index += 1
+					print '有'
+
+			print union,union_flag,empty_flag,no
+			if union > 1 and union_flag and empty_flag is False:
+				#print "start_union%d" % start_point
+				#print "union%d" % union
+
+				union_index_list = [i+1 for i in range(start_point+1,no)]
+				print union_index_list
+
+				for j,item in enumerate(encode_json['body']):
+					for union_index in union_index_list:
+						if 'blank' == item['type'] and union_index == item['value']:
+							del encode_json['body'][j]
+							break		
+
+					if 'blank' == item['type'] and start_point+1 == item['value']:
+						print '进入1'
+						encode_json['body'][j]['union'] = union
+						encode_json['body'][j]['value'] = cur_index - 2
+						print cur_index-1
+				start_point = no
+				union = 1
+			
+			elif union > 1 and no == old_blank_num-1:
+				#print "start_union%d" % start_point
+				#print "union%d" % union
+
+				union_index_list = [i+1 for i in range(start_point+1,no+1)]
+				print union_index_list
+
+				for j,item in enumerate(encode_json['body']):
+					for union_index in union_index_list:
+						if 'blank' == item['type'] and union_index == item['value']:
+							del encode_json['body'][j]
+							break		
+					#print start_point
+					if 'blank' == item['type'] and start_point+1 == item['value']:
+						print '进入2'
+						encode_json['body'][j]['union'] = union
+						encode_json['body'][j]['value'] = cur_index - 1
+						print cur_index-1
+				start_point = no
+				union = 1
+
+			if Base.empty(answer_content) is False:
+				start_point = no
+			
+		#print encode_json['body']
+		#print union_index_list
+		#print new_answer_dict
+		#填写答案
 		for index,answer in new_answer_dict.items():
 			for item in encode_json['answer']:
-				if 'text' == item['type']:
-					item['value'] = answer.decode('utf8')
-					item['index'] = index
+				if index == item['index']:
+					item['group']['type'] = 'text'
+					item['group']['value'] = answer
+					break
 
-		new_question_json = json.dumps(encode_json,ensure_ascii = False)
+		for del_index in range(new_blank_num+1,old_blank_num+1):
+			for p,item in enumerate(encode_json['answer']):
+				if del_index == item['index']:
+					del encode_json['answer'][p]
+					break
 
+		#print encode_json['body']
+		#print '---'
+		#print encode_json['answer']
+		#new_question_json = json.dumps(encode_json,ensure_ascii = False)
+		new_question_json = json.dumps(encode_json)
+		#print new_question_json
+		'''
 		try: 
 			if Business.update_json_by_id(oldid,new_question_json):
 				self.write('ok')
@@ -622,3 +742,4 @@ class SubmitAnswer(web.RequestHandler):
 		except DBException as e:
 			self.write('no')
 			return
+		'''

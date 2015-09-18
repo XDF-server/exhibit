@@ -15,10 +15,18 @@
 
         <br />
 
-        <div class = "row">
+        <div class = "row" style="word-wrap:break-word;word-break:break-all;">
 		{% if new_question %}
 
-			{% if new_question['body'] %}
+			{% if 'material' in new_question.keys() %}
+				<div class="explain">材料</div>
+				<hr />
+				{% for item in new_question['material'] %}
+					{% raw item %}
+				{% end %}
+			{% end %}
+
+			{% if 'body' in new_question.keys() %}
 				<div class="explain">题干</div>
 				<hr />
 				{% for item in new_question['body'] %}
@@ -26,7 +34,64 @@
 				{% end %}
 			{% end %}
 
-			{% if new_question['options'] %}
+			{% if 'translation' in new_question.keys() %}
+				<div class="explain">翻译</div>
+				<hr />
+				{% for item in new_question['translation'] %}
+					{% raw item %}
+				{% end %}
+			{% end %}
+
+			{% if 'questions' in new_question.keys() %}
+				<div class="explain">子题</div>
+				<hr />
+
+				{% for sub_question in new_question['questions'] %}
+					{% if 'body' in sub_question['sub_question'].keys() %}
+						<div class="explain">题干</div>
+						<hr />
+							{% for item in sub_question['sub_question']['body'] %}
+								{% raw item %}
+							{% end %}
+					{% end %}
+				
+					{% if 'options' in sub_question['sub_question'].keys() %}
+						<div class="explain">选项</div>
+						<hr />
+						{% for item in sub_question['sub_question']['options'] %}
+							{% for option in item %}
+								{% raw option %}
+							{% end %}
+						{% end %}
+					{% end %}
+
+					{% if 'answer' in sub_question['sub_question'].keys() %}
+						<div class="explain">回答</div>
+						<hr />
+						{% for i,item in enumerate(sub_question['sub_question']['answer']) %}
+							<div id="index{{ i+1 }}" name="old_answer" style="float:left;">{% raw item %}</div>
+						{% end %}
+						<br />
+						{% for i in range(sub_question['sub_num']) %}
+							<input id="{{ i+1 }}" name="new_answer" class="form-control input-sm " style="width:200px;display:inline;" type="text" autocomplete="off" placeholder="请填写答案{{ i+1 }}" /> 
+						{% end %}
+						<br />
+						{% if sub_question['sub_num'] %}
+							<button id="submit_answer" type="button" data-loading-text="已提交" class="btn btn-success btn-sm">提交答案</button>
+						{% end %}
+					{% end %}
+				
+					{% if 'analysis' in sub_question['sub_question'].keys() %}
+						<div class="explain">分析</div>
+						<hr />
+						{% for item in sub_question['sub_question']['analysis'] %}
+							{% raw item %}
+						{% end %}
+					{% end %}
+				{% end %}
+			{% end %}
+
+			{% if 'options' in new_question.keys() %}
 				<div class="explain">选项</div>
 				<hr />
 				{% for item in new_question['options'] %}
@@ -36,7 +101,7 @@
 				{% end %}
 			{% end %}
 
-			{% if new_question['answer'] %}
+			{% if 'answer' in new_question.keys() %}
 				<div class="explain">回答</div>
 				<hr />
 				{% for i,item in enumerate(new_question['answer']) %}
@@ -53,7 +118,7 @@
 
 			{% end %}
 		
-			{% if new_question['analysis'] %}
+			{% if 'analysis' in new_question.keys() %}
 				<div class="explain">分析</div>
 				<hr />
 				{% for item in new_question['analysis'] %}

@@ -117,13 +117,13 @@ $(function(){
 			new_answer += index + ",";
 			var v = $(this).val();
 			new_answer += v + "|";
-
+			/*
 			if (!v){
 				$(this).css("background","#FFEBCD");
 				flag = false;
 				return false;
 			}
-		
+			*/
 		});
 		
 		if(flag){
