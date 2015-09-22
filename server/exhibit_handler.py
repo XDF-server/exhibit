@@ -598,6 +598,12 @@ class SubmitAnswer(web.RequestHandler):
 		else:
 			new_answer = ''.join(self.request.arguments['new_answer'])
 		
+		if 'sub_id' not in self.request.arguments.keys():
+                        self.write('no')
+			return
+		else:
+			sub_id = int(''.join(self.request.arguments['sub_id']))
+
 		try: 
 			question_json = Business.get_json_by_id(oldid)
 			
@@ -611,6 +617,16 @@ class SubmitAnswer(web.RequestHandler):
 			self.write('no')
 			return
 
+		#确定答案，题干
+		if 0 == sub_id:
+			encode_answer = encode_json['answer']
+			encode_body = encode_json['body']
+		else:
+			encode_answer = encode_json['questions'][sub_id-1]['answer']
+			encode_body = encode_json['questions'][sub_id-1]['body']
+
+		#print encode_body
+
 		new_answer_dict = {}
 		new_answer_list = new_answer.split('|')
 
@@ -619,21 +635,22 @@ class SubmitAnswer(web.RequestHandler):
 		old_blank_num = len(new_answer_list) - 1
 
 		#填补答案索引
-		for index,item in enumerate(encode_json['answer']):
+		for index,item in enumerate(encode_answer):
 			if 'image' == item['type']:
 				tmp_dict = {'index':current_index,'group':item}
-				encode_json['answer'][index] = tmp_dict
+				encode_answer[index] = tmp_dict
 				current_index += 1
 
 			if 'text' == item['type']:
 				tmp_dict = {'index':current_index,'group':item}
-				encode_json['answer'][index] = tmp_dict
+				encode_answer[index] = tmp_dict
 				current_index += 1
 
 		for i in range(current_index,old_blank_num+1):
-			encode_json['answer'].append({"index":i,"group":{}})
+			encode_answer.append({"index":i,"group":{}})
 
-		#print encode_json['answer']
+
+		#print encode_answer
 
 		#计算联合blank，并更新json
 		new_blank_num = 0 
@@ -672,16 +689,16 @@ class SubmitAnswer(web.RequestHandler):
 				union_index_list = [i+1 for i in range(start_point+1,no)]
 				print union_index_list
 
-				for j,item in enumerate(encode_json['body']):
+				for j,item in enumerate(encode_body):
 					for union_index in union_index_list:
 						if 'blank' == item['type'] and union_index == item['value']:
-							del encode_json['body'][j]
+							del encode_body[j]
 							break		
 
 					if 'blank' == item['type'] and start_point+1 == item['value']:
 						print '进入1'
-						encode_json['body'][j]['union'] = union
-						encode_json['body'][j]['value'] = cur_index - 2
+						encode_body[j]['union'] = union
+						encode_body[j]['value'] = cur_index - 2
 						print cur_index-1
 				start_point = no
 				union = 1
@@ -693,16 +710,16 @@ class SubmitAnswer(web.RequestHandler):
 				union_index_list = [i+1 for i in range(start_point+1,no+1)]
 				print union_index_list
 
-				for j,item in enumerate(encode_json['body']):
+				for j,item in enumerate(encode_body):
 					for union_index in union_index_list:
 						if 'blank' == item['type'] and union_index == item['value']:
-							del encode_json['body'][j]
+							del encode_body[j]
 							break		
 					#print start_point
 					if 'blank' == item['type'] and start_point+1 == item['value']:
 						print '进入2'
-						encode_json['body'][j]['union'] = union
-						encode_json['body'][j]['value'] = cur_index - 1
+						encode_body[j]['union'] = union
+						encode_body[j]['value'] = cur_index - 1
 						print cur_index-1
 				start_point = no
 				union = 1
@@ -710,26 +727,38 @@ class SubmitAnswer(web.RequestHandler):
 			if Base.empty(answer_content) is False:
 				start_point = no
 			
-		#print encode_json['body']
+		#print encode_body
 		#print union_index_list
 		#print new_answer_dict
 		#填写答案
 		for index,answer in new_answer_dict.items():
-			for item in encode_json['answer']:
-				if index == item['index']:
+			for item in encode_answer:
+				if 'index' in item.keys() and index == item['index']:
 					item['group']['type'] = 'text'
 					item['group']['value'] = answer
 					break
 
 		for del_index in range(new_blank_num+1,old_blank_num+1):
-			for p,item in enumerate(encode_json['answer']):
-				if del_index == item['index']:
-					del encode_json['answer'][p]
+			for p,item in enumerate(encode_answer):
+				if'index' in item.keys() and  del_index == item['index']:
+					del encode_answer[p]
 					break
 
-		#print encode_json['body']
+		#print encode_body
+
+		#修改原始的json
+
+		if 0 == sub_id:
+			encode_json['body'] = encode_body
+			encode_json['answer'] = encode_answer
+
+		else:
+			encode_json['questions'][sub_id-1]['body'] = encode_body
+			encode_json['questions'][sub_id-1]['answer'] = encode_answer
+
+		print encode_json
 		#print '---'
-		#print encode_json['answer']
+		#print encode_answer
 		#new_question_json = json.dumps(encode_json,ensure_ascii = False)
 		new_question_json = json.dumps(encode_json)
 		#print new_question_json

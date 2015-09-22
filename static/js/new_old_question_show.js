@@ -105,33 +105,57 @@ $(function(){
 		$(this).css("background","white");
 	});
 
-
 	$('button#submit_answer').on('click',function() {
 		var this_btn = $(this);
 		var oldid = $("div#q_old_id").text()
 		var new_answer = ""
 		var flag = true
+		var sub_id = $(this).parent().attr("id").substring(12)
 
-		$("input[name=new_answer]").each(function(){
-			var index = $(this).attr("id");
-			new_answer += index + ",";
-			var v = $(this).val();
-			new_answer += v + "|";
-			/*
-			if (!v){
-				$(this).css("background","#FFEBCD");
-				flag = false;
-				return false;
-			}
-			*/
-		});
+		if("undefined" == typeof(sub_id))
+		{
+			sub_id = 0
+		}
 		
+		if (0 == sub_id)
+		{
+			$("input[name=new_answer]").each(function(){
+				var index = $(this).attr("id");
+				new_answer += index + ",";
+				var v = $(this).val();
+				new_answer += v + "|";
+				/*
+				if (!v){
+					$(this).css("background","#FFEBCD");
+					flag = false;
+					return false;
+				}
+				*/
+			});
+		}
+		else
+		{
+			$(this).parent().find("input[name=new_answer]").each(function(){
+				var index = $(this).attr("id");
+				new_answer += index + ",";
+				var v = $(this).val();
+				new_answer += v + "|";
+				/*
+				if (!v){
+					$(this).css("background","#FFEBCD");
+					flag = false;
+					return false;
+				}
+				*/
+			});
+		}
+
 		if(flag){
 
 			$.ajax({
 					type : "post",
 					url : "/submit_answer",
-					data: {"oldid":oldid,"new_answer":new_answer},
+					data: {"oldid":oldid,"new_answer":new_answer,"sub_id":sub_id},
 					success:function(msg){
 						if (msg == 'ok'){
 							this_btn.button("loading");

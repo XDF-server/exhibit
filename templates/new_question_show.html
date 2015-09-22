@@ -46,7 +46,8 @@
 				<div class="explain">子题</div>
 				<hr />
 
-				{% for sub_question in new_question['questions'] %}
+				{% for sub_id,sub_question in enumerate(new_question['questions']) %}
+					<div id="sub_question{{ sub_id + 1 }}">
 					{% if 'body' in sub_question['sub_question'].keys() %}
 						<div class="explain">题干</div>
 						<hr />
@@ -88,6 +89,7 @@
 							{% raw item %}
 						{% end %}
 					{% end %}
+					</div>
 				{% end %}
 			{% end %}
 
