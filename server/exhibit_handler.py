@@ -772,3 +772,53 @@ class SubmitAnswer(web.RequestHandler):
 			self.write('no')
 			return
 		'''
+
+
+class PaperShow(web.RequestHandler):
+
+	def get(self):
+		for i in range(1):
+			essential_keys = set(['data','type'])
+
+			if Base.check_parameter(set(self.request.arguments.keys()),essential_keys):
+				break 
+
+			type = ''.join(self.request.arguments['type'])
+
+			access = { '1' : '_qid_search'}[type]
+
+
+			if self.request.arguments.has_key('data'):
+				data = ''.join(self.request.arguments['data'])
+				getattr(self,access)(data)
+
+			else:
+				getattr(self,access)()
+
+	def _qid_search(self,question_id):
+
+		self.get_question_by_id(question_id)
+	
+	def get_question_by_id(self,question_id):	
+		
+		mysql = Mysql()
+			
+		try:
+			mysql.connect_master()
+
+			search_sql = "select Knowledge,QuesType,QuesAbility,QuesBody,QuesAnswer,QuesParse from paper where ID=%(question_id)d union all select Knowledge,QuesType,QuesAbility,QuesBody,QuesAnswer,QuesParse from cz_paper where ID=%(question_id)d;"
+
+			if 0 == mysql.query(search_sql,question_id = int(question_id)):
+				return None
+			else:
+				question_set = mysql.fetch()
+
+			print question_set
+
+		except DBException as e:
+			pass
+		
+			
+class PaperPage(web.RequestHandler):	
+	
+	pass

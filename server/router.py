@@ -36,6 +36,8 @@ if __name__ == "__main__":
 		(r'/login',Login),
 		(r'/register',Register),
 		(r'/submit_answer',SubmitAnswer),
+
+		(r'/paper_show',PaperShow),
 	],
 	template_path = os.path.join(os.path.dirname(__file__),os.pardir,'templates'),
 	static_path = os.path.join(os.path.dirname(__file__),os.pardir,'static'),
