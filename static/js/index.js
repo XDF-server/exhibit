@@ -62,6 +62,24 @@ $(function(){
 		$("#search-form").submit();
 	});
 
+	$("#paper-search").click(function(){
+
+		if(0 == check_input())
+		{
+			data = $("#search-data").val()
+			$("#search_data").attr("value",data);
+			$("#search_type").attr("value","4");
+			$("#search-form").submit();
+			clear_last_input()
+		}
+		else
+		{
+			clear_last_input();
+			input_warning();
+		}
+	});
+
+
 /*
 	$("#single_choice").click(function(){
 			$("#search_type").attr("value","2");

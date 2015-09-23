@@ -1,0 +1,40 @@
+{% include "header.html" %}
+<link rel="stylesheet" href="{{ static_url("css/paper_question.css") }}" >
+<div class="container">
+<div id = "paper_question_show" > 
+
+        <br />
+
+        <div class = "row">
+                <div class = "alert alert-success ">
+                        <p class = "text-muted">
+                                <span class = "col-lg-offset-1">试题类型:{{ type  }}</span>
+                                <span class = "col-lg-offset-1">试题掌握类型:{{ ability  }}</span>
+                                <span class = "col-lg-offset-1">难度:{{ diff }}</span>
+								<span class = "col-lg-offset-1">知识点:{{ knowledge }}</span>
+                        </p>
+                </div>
+        </div>
+
+        <br />
+
+        <div class = "row" style="word-wrap:break-word;word-break:break-all;">
+			<div class="explain">题干</div>
+			<hr />
+			{% raw body %}
+
+			<div class="explain">回答</div>
+			<hr />
+			{% raw answer %}
+
+			<div class="explain">分析</div>
+			<hr />
+			{% raw parse %}
+
+        <div id = "q_new_id" style = "display:none"><div>
+
+</div>
+</div>
+{% include "footer.html" %}
+
+</html>

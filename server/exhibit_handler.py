@@ -105,7 +105,8 @@ class Search(web.RequestHandler):
 
 		access = { '1' : '_qid_search',
 			   '2' : '_q_type_filter',
-			   '3' : '_q_subject_filter'}[type]
+			   '3' : '_q_subject_filter',
+			   '4' : '_paper_search'}[type]
 
 
 		if self.request.arguments.has_key('data'):
@@ -114,6 +115,53 @@ class Search(web.RequestHandler):
 
 		else:
 			getattr(self,access)()
+
+	def _paper_search(self,question_id):
+
+		question_dict = self.get_question_by_id(question_id)
+		
+		if question_dict is None:
+			self.write('搜无此题')
+			return 
+		
+		page_dict = {'title':'paper题库展示'}
+	
+		combine_dict = dict(page_dict,**question_dict)
+		
+		self.render('paper_question_show.html',**combine_dict)
+	
+	def get_question_by_id(self,question_id):	
+		
+		mysql = Mysql()
+			
+		try:
+			mysql.connect_master()
+
+			search_sql = "select A.Knowledge,B.TypeValue,A.QuesAbility,A.QuesDiff,A.QuesBody,A.QuesAnswer,A.QuesParse from(select Knowledge,QuesType,QuesAbility,QuesDiff,QuesBody,QuesAnswer,QuesParse from paper.paper where ID=%(question_id)d union all select Knowledge,QuesType,QuesAbility,QuesDiff,QuesBody,QuesAnswer,QuesParse from paper.cz_paper where ID=%(question_id)d)A left outer join (select TypeId,TypeValue from paper.questype)B on (A.QuesType=B.TypeId);"
+
+			if 0 == mysql.query(search_sql,question_id = int(question_id)):
+				return None
+			else:
+				question_set = mysql.fetch()
+
+		except DBException as e:
+			pass
+
+		question_ability_dict ={'1':'了解和识记','2':'理解和掌握','3':'简单应用','4':'综合应用'}
+		question_diff_dict = {'1':'容易','2':'较易','3':'一般','4':'较难','5':'困难'}
+
+		question_dict = {}
+		
+		question_dict['knowledge'] = question_set[0]
+		question_dict['type'] = question_set[1]
+		question_dict['ability'] = question_ability_dict[question_set[2]]
+		question_dict['diff'] = question_diff_dict[question_set[3]]
+	
+		question_dict['body'] = question_set[4]
+		question_dict['answer'] = question_set[5]
+		question_dict['parse'] = question_set[6]
+
+		return question_dict
 
 	def _qid_search(self,data):
 
@@ -774,51 +822,3 @@ class SubmitAnswer(web.RequestHandler):
 		'''
 
 
-class PaperShow(web.RequestHandler):
-
-	def get(self):
-		for i in range(1):
-			essential_keys = set(['data','type'])
-
-			if Base.check_parameter(set(self.request.arguments.keys()),essential_keys):
-				break 
-
-			type = ''.join(self.request.arguments['type'])
-
-			access = { '1' : '_qid_search'}[type]
-
-
-			if self.request.arguments.has_key('data'):
-				data = ''.join(self.request.arguments['data'])
-				getattr(self,access)(data)
-
-			else:
-				getattr(self,access)()
-
-	def _qid_search(self,question_id):
-
-		self.get_question_by_id(question_id)
-	
-	def get_question_by_id(self,question_id):	
-		
-		mysql = Mysql()
-			
-		try:
-			mysql.connect_master()
-
-			search_sql = "select Knowledge,QuesType,QuesAbility,QuesBody,QuesAnswer,QuesParse from paper where ID=%(question_id)d union all select Knowledge,QuesType,QuesAbility,QuesBody,QuesAnswer,QuesParse from cz_paper where ID=%(question_id)d;"
-
-			if 0 == mysql.query(search_sql,question_id = int(question_id)):
-				return None
-			else:
-				question_set = mysql.fetch()
-
-			print question_set
-
-		except DBException as e:
-			pass
-		
-			
-class PaperPage(web.RequestHandler):	
-	
-	pass
